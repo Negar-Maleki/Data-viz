@@ -1,4 +1,8 @@
 import styled from "styled-components";
+import "primereact/resources/themes/bootstrap4-light-blue/theme.css"; //theme
+import "primereact/resources/primereact.min.css"; //core css
+import "primeicons/primeicons.css";
+
 import Main from "./Main";
 import NavBar from "./NavBar";
 import Sidebar from "./Sidebar";
@@ -6,7 +10,8 @@ import Footer from "./Footer";
 
 const StyledApp = styled.div`
   width: 100%;
-  height: 100vh;
+  height: 100%;
+
   @media screen and (min-width: 775px) {
     display: grid;
     grid-template-columns: 1fr 4fr;

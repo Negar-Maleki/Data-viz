@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import Charts from "./Charts";
+import HorizontalBar from "./HorizontalBar";
+import LineChart from "./LineChart";
 
 const StyledMain = styled.div`
   grid-column: 2/-1;
@@ -15,9 +16,6 @@ const StyledMain = styled.div`
     grid-column: 1/-1;
   }
 
-  @media screen and (max-width: 600px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
   @media screen and (min-width: 1200px) {
     grid-template-columns: 1fr 1fr;
   }
@@ -26,9 +24,8 @@ const StyledMain = styled.div`
 function Main() {
   return (
     <StyledMain>
-      <Charts />
-      <Charts />
-      <Charts />
+      <HorizontalBar />
+      <LineChart />
     </StyledMain>
   );
 }
