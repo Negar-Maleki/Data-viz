@@ -1,5 +1,3 @@
-const labels = { "0-0-0": [1, 2, 3], "0-": ["a", "b", "c"] };
-
 export const NodeService = {
   getTreeNodesData() {
     return [

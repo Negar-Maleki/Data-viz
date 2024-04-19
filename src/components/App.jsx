@@ -3,10 +3,10 @@ import "primereact/resources/themes/bootstrap4-light-blue/theme.css"; //theme
 import "primereact/resources/primereact.min.css"; //core css
 import "primeicons/primeicons.css";
 
-import Main from "./Main";
 import NavBar from "./NavBar";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
+import StartPage from "./StartPage";
 
 const StyledApp = styled.div`
   width: 100%;
@@ -24,7 +24,7 @@ function App() {
     <StyledApp>
       <NavBar />
       <Sidebar />
-      <Main />
+      <StartPage />
       <Footer />
     </StyledApp>
   );
