@@ -1,7 +1,7 @@
+import { useState } from "react";
+
 import styled from "styled-components";
 import FilterShowing from "./FilterShowing";
-import GroupedByFilter from "./GroupedByFilter";
-import FilterBy from "./FilterBy";
 
 const StyledSidebar = styled.div`
   grid-column: 1/2;
@@ -18,8 +18,6 @@ function Sidebar() {
   return (
     <StyledSidebar>
       <FilterShowing />
-      <GroupedByFilter />
-      <FilterBy />
     </StyledSidebar>
   );
 }

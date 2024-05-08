@@ -19,7 +19,7 @@ const StyledFilter = styled.div`
   }
 `;
 
-function FilterBy() {
+function FilterBy({ selectedLabels }) {
   const [filterCount, setFilterCount] = useState([1]);
 
   const handleAddFilter = () => {
@@ -34,7 +34,7 @@ function FilterBy() {
           <InplaceDisplay>
             <Button
               type="button"
-              label="Add group"
+              label="Add filter"
               outlined
               severity="info"
               icon="pi pi-plus"
@@ -43,7 +43,7 @@ function FilterBy() {
           </InplaceDisplay>
           <InplaceContent>
             <fieldset>
-              <FilterBar />
+              <FilterBar selectedLabels={selectedLabels} />
             </fieldset>
           </InplaceContent>
         </Inplace>

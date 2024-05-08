@@ -1,6 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
+import GroupedByFilter from "./GroupedByFilter";
+import FilterBy from "./FilterBy";
+
 import { TreeSelect } from "primereact/treeselect";
 import { Tag } from "primereact/tag";
 import { DataContext } from "../service/provider/DataProvider";
@@ -22,31 +25,66 @@ const StyledFilters = styled.div`
 function FilterShowing() {
   const [nodes, setNodes] = useState(null);
   const [selectedNodeKey, setSelectedNodeKey] = useState(null);
-  const [selectedNodeLabel, setSelectedNodeLabel] = useState(null);
+  const [selectedLabels, setSelectedLabels] = useState(null);
+
+  const nodesArray = [];
 
   const data = useContext(DataContext);
 
   useEffect(() => {
-    const nodesArray = [];
     data.forEach((item) => {
       const annotation = item.annotations;
-      const measure = item.measures;
-      const dimension = item.dimensions;
+      const cubeMeasures = item.measures;
+      const cubeDimensions = item.dimensions;
+      const childData = {
+        dimensions: cubeDimensions.map((dimension) => ({
+          dimensionName: dimension.name,
+          cubeName: item.name,
+          hierarchies: dimension.hierarchies.map((hierarchy) => ({
+            name: hierarchy.name,
+            levels: hierarchy.levels.map((level) => ({ name: level.name })),
+          })),
+        })),
+      };
 
-      let measureChildren = measure.map((m) => ({
+      let measureChildren = cubeMeasures.map((m) => ({
+        name: item.name,
         label: m.name,
-        data: dimension.map((dim) => dim.name),
+        data: childData,
+        more: [],
       }));
-      measureChildren = measureChildren.filter((child, i) => {
-        return !child.label.includes("Moe");
+      measureChildren = measureChildren.filter((child) => {
+        return (
+          !child.label.includes("MOE") &&
+          !child.label.includes("RCA") &&
+          !child.label.includes("Moe")
+        );
       });
+      const measureChildrenLabels = measureChildren.map((obj) => obj.label);
+      measureChildren.forEach((obj) => {
+        obj.more = measureChildrenLabels;
+      });
+
       const repeatedArrayIndex = nodesArray.findIndex(
         (node) => node.label === annotation.topic
       );
+
+      nodesArray.sort((a, b) => {
+        if (a.label < b.label) {
+          return -1;
+        }
+        if (a.label > b.label) {
+          return 1;
+        }
+        return 0;
+      });
+
       if (repeatedArrayIndex === -1) {
         nodesArray.push({
+          name: item.name,
           label: annotation.topic,
           selectable: false,
+
           children: [
             {
               label: annotation.subtopic,
@@ -98,30 +136,6 @@ function FilterShowing() {
     setNodes(nodesArray);
   }, [data]);
 
-  function findLabelsByKey(nodes, key, labels = []) {
-    if (!nodes || !Array.isArray(nodes)) {
-      return undefined;
-    }
-    for (let node of nodes) {
-      if (node.key === key) {
-        labels.push(...node.data);
-      }
-      if (node.children) {
-        findLabelsByKey(node.children, key, labels);
-      }
-    }
-
-    return labels;
-  }
-
-  const labels = findLabelsByKey(nodes, selectedNodeKey);
-
-  const handleNodeSelect = (e) => {
-    const selectedKey = e.value;
-    setSelectedNodeKey(selectedKey);
-    setSelectedNodeLabel(labels);
-  };
-
   if (!nodes || nodes.length === 0)
     return (
       <ProgressSpinner
@@ -129,10 +143,9 @@ function FilterShowing() {
         strokeWidth="8"
         fill="var(--surface-ground)"
         animationDuration=".5s"
-      >
-        Loading...
-      </ProgressSpinner>
+      />
     );
+  const labels = selectedLabels?.data ? selectedLabels.data.dimensions : null;
 
   return (
     <>
@@ -141,24 +154,25 @@ function FilterShowing() {
 
         <TreeSelect
           value={selectedNodeKey}
-          onChange={handleNodeSelect}
+          onChange={(e) => setSelectedNodeKey(e.value)}
           options={nodes}
           filter
           placeholder="Select Item"
           showClear
           inputId="treeSelect"
+          onNodeSelect={(e) => setSelectedLabels(e.node)}
         />
 
         <span>
           {labels ? (
             labels.length <= 5 ? (
               labels.map((label, i) => (
-                <Tag key={i} severity="warning" value={label} />
+                <Tag key={i} severity="warning" value={label.dimensionName} />
               ))
             ) : (
               <>
                 {labels.slice(0, 5).map((label, i) => (
-                  <Tag key={i} severity="warning" value={label} />
+                  <Tag key={i} severity="warning" value={label.dimensionName} />
                 ))}
                 <Tag severity="warning" value={`+${labels.length - 6}`} />
               </>
@@ -166,6 +180,9 @@ function FilterShowing() {
           ) : null}
         </span>
       </StyledFilters>
+
+      <GroupedByFilter selectedLabels={selectedLabels} />
+      <FilterBy selectedLabels={selectedLabels} />
     </>
   );
 }
