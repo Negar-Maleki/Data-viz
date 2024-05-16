@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import GroupedByFilter from "./GroupedByFilter";
+import GroupedByFilters from "./GroupedByFilters";
 import FilterBy from "./FilterBy";
 
 import { TreeSelect } from "primereact/treeselect";
 import { Tag } from "primereact/tag";
-import { DataContext } from "../service/provider/DataProvider";
 import { ProgressSpinner } from "primereact/progressspinner";
+import { useFilter } from "../contexts/FilterContext";
+import { DataContext } from "../service/provider/DataProvider";
 
 const StyledFilters = styled.div`
   padding-bottom: 0.5em;
@@ -23,14 +24,10 @@ const StyledFilters = styled.div`
 `;
 
 function FilterShowing() {
-  const [nodes, setNodes] = useState(null);
+  const { selectedLabels, measureNodes, dispatch } = useFilter();
   const [selectedNodeKey, setSelectedNodeKey] = useState(null);
-  const [selectedLabels, setSelectedLabels] = useState(null);
-
   const nodesArray = [];
-
   const data = useContext(DataContext);
-
   useEffect(() => {
     data.forEach((item) => {
       const annotation = item.annotations;
@@ -133,10 +130,13 @@ function FilterShowing() {
       }
     });
 
-    setNodes(nodesArray);
+    dispatch({ type: "setNodes", payload: nodesArray });
   }, [data]);
 
-  if (!nodes || nodes.length === 0)
+  const setSelectedLabels = (e) =>
+    dispatch({ type: "setSelectedLabels", payload: e.node });
+
+  if (!measureNodes || measureNodes.length === 0)
     return (
       <ProgressSpinner
         style={{ width: "50px", height: "50px" }}
@@ -155,12 +155,12 @@ function FilterShowing() {
         <TreeSelect
           value={selectedNodeKey}
           onChange={(e) => setSelectedNodeKey(e.value)}
-          options={nodes}
+          options={measureNodes}
           filter
           placeholder="Select Item"
           showClear
           inputId="treeSelect"
-          onNodeSelect={(e) => setSelectedLabels(e.node)}
+          onNodeSelect={setSelectedLabels}
         />
 
         <span>
@@ -181,8 +181,8 @@ function FilterShowing() {
         </span>
       </StyledFilters>
 
-      <GroupedByFilter selectedLabels={selectedLabels} />
-      <FilterBy selectedLabels={selectedLabels} />
+      <GroupedByFilters />
+      <FilterBy />
     </>
   );
 }

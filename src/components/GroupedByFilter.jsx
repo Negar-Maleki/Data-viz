@@ -1,156 +1,178 @@
+import React, { Children, useState } from "react";
 import styled from "styled-components";
-import { Inplace, InplaceContent, InplaceDisplay } from "primereact/inplace";
+
+import { useFilter } from "../contexts/FilterContext";
 import { Button } from "primereact/button";
-import { useState } from "react";
 import { TreeSelect } from "primereact/treeselect";
-import Filters from "./Filters";
+import { ProgressSpinner } from "primereact/progressspinner";
+import { Tag } from "primereact/tag";
 
 const StyledFilters = styled.div`
   display: grid;
-  min-height: 3.5em;
+  gap: 1em;
 
   label {
-    padding: 0.5em 0;
-  }
-  fieldset {
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 1em;
+    padding-bottom: 1em;
   }
 `;
-
-const StyledTreeSelect = styled(TreeSelect)`
-  width: 100%;
-`;
-const StyledAddGroupButton = styled(Button)`
-  width: 100%;
-  display: inline;
+const StyledButton = styled.div`
+  display: grid;
+  gap: 0.2em;
+  grid-auto-flow: column;
 `;
 
-function GroupedByFilter({ selectedLabels }) {
-  const [selectedLabel, setSelectedLabel] = useState(null);
-  const [filterCount, setFilterCount] = useState([1]);
+const StyledSelectedOption = styled.div`
+  background-color: #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  width: max-content;
+`;
 
-  const handleAddFilter = () => {
-    // if (selectedLabels.data.dimensions.length > filterCount.length)
-    setFilterCount(filterCount + 1);
+function GroupedByFilter({ onSelectedLabel, dimensionsNodes }) {
+  const [isLoadingState, setIsLoadingState] = useState(false);
+  const [selectedNodeKeysState, setSelectedNodeKeysState] = useState(null);
+  const [selectedMajorOptionState, setSelectedMajorOptionState] =
+    useState(null);
+
+  const [selectedOptionsState, setSelectedOptionsState] = useState([]);
+  const [filterDataState, setFilterDataState] = useState(null);
+  const [selectedGroupByKeysState, setSelectedGroupByKeysState] = useState([]);
+  const [showEditBtnState, setShowEditBtnState] = useState(false);
+  const { appliedOptions, dispatch } = useFilter();
+
+  const handleSelectGroupByNode = (e) => {
+    dispatch({ type: "setSelectedGroupByLabels", payload: e.node });
+
+    selectedOptionsState.push(e.node);
   };
 
-  let nodes = selectedLabels?.data.dimensions
-    .filter((dim) => dim.dimensionName !== "Year")
-    .map((dim, i) => {
-      if (dim.hierarchies.length === 1)
-        if (dim.hierarchies[0].levels.length <= 2) {
-          return {
-            label: dim.dimensionName,
-            selectable: true,
-            key: `${i}`,
-            data: {
-              dimensionName: dim.dimensionName,
-              hierarchyName: dim.hierarchies[0].name,
-              cubeName: dim.cubeName,
-              level: dim.hierarchies[0].levels[1].name,
-            },
-          };
-        } else {
-          return {
-            label: dim.dimensionName,
-            selectable: false,
-            key: `${i}`,
-            children: dim.hierarchies[0].levels
-              .filter(
-                (level) =>
-                  level.name !== "(All)" &&
-                  level.name !== dim.hierarchies[0].name
-              )
-              .map((level, j) => ({
-                label: level.name,
-                key: `${i}-${j}`,
-                selectable: true,
-                data: {
-                  dimensionName: dim.dimensionName,
-                  hierarchyName: dim.hierarchies[0].name,
-                  cubeName: dim.cubeName,
-                  level: level.name,
-                },
-              })),
-          };
-        }
-      else {
-        return {
-          label: dim.dimensionName,
-          selectable: false,
-          key: `${i}`,
-          children: dim.hierarchies.map((hier, j) => ({
-            label: hier.name,
-            key: `${i}-${j}`,
-            selectable: false,
-            children: hier.levels
-              .filter(
-                (level) => level.name !== "(All)" && level.name !== hier.name
-              )
-              .map((level, k) => ({
-                label: level.name,
-                data: {
-                  dimensionName: dim.dimensionName,
-                  hierarchyName: hier.name,
-                  cubeName: dim.cubeName,
-                  level: level.name,
-                },
-                key: `${i}-${j}-${k}`,
-              })),
-          })),
-        };
-      }
-    });
+  const handleSelectDimensionsNode = (e) => {
+    onSelectedLabel(e.node);
+    setSelectedMajorOptionState(e.node);
 
-  nodes?.forEach((node) => {
-    if (node?.children?.length === 1) {
-      node.children = node?.children[0]?.children;
+    const cubeName = e.node.data.cubeName;
+    const dimensionName = e.node.data.dimensionName;
+    const hierarchyName = e.node.data.hierarchyName;
+    const levelName = e.node.label;
+
+    async function getGroupsFilters() {
+      setIsLoadingState(true);
+
+      const res = await fetch(
+        `https://zircon-api.datausa.io/cubes/${cubeName}/dimensions/${dimensionName}/hierarchies/${hierarchyName}/levels/${levelName}/members?children=false`
+      );
+      const data = await res.json();
+      setFilterDataState(data);
+
+      setIsLoadingState(false);
     }
-  });
-  console.log(selectedLabels);
+    getGroupsFilters();
+  };
+
+  const dimLevMemberNodes = filterDataState?.members.map((member, i) => ({
+    label: member.name,
+    key: member.key,
+  }));
+  const filtersFullname = filterDataState?.full_name
+    .split(".")
+    .map((item) => item.replace(/\[|\]/g, ""));
+
+  const handleApplyFilter = () => {
+    if (selectedMajorOptionState && selectedOptionsState.length === 0) {
+      dispatch({
+        type: "setAppliedMajorOption",
+        payload: selectedMajorOptionState,
+      });
+
+      setShowEditBtnState(true);
+    } else if (selectedOptionsState && selectedOptionsState.length > 0) {
+      dispatch({
+        type: "setAppliedOptions",
+        payload: selectedOptionsState,
+      });
+      dispatch({
+        type: "setAppliedMajorOption",
+        payload: selectedMajorOptionState,
+      });
+      setShowEditBtnState(true);
+    }
+  };
+  const handleEditFilter = () => {
+    setShowEditBtnState(false);
+  };
+
+  // console.log(
+  //   dimLevMemberNodes?.filter(
+  //     (node) => Object.keys(selectedGroupByKeysState).indexOf(node.key) !== -1
+  //   )
+  // );
+
+  const handleDeleteFilter = () => {
+    setSelectedMajorOptionState(null);
+    setShowEditBtnState(false);
+    setSelectedOptionsState([]);
+    setSelectedGroupByKeysState(null);
+    setSelectedNodeKeysState(null);
+    onSelectedLabel(null);
+  };
+
   return (
     <StyledFilters>
-      <label>Grouped by </label>
-      <fieldset>
-        <p>
-          {selectedLabels
-            ? selectedLabel
-              ? `${selectedLabel.data.dimensionName} > ${selectedLabel.data.level}`
-              : `${selectedLabels.data.dimensions[0].dimensionName} > ${selectedLabels.data.dimensions[0].hierarchies[0].levels[1].name}`
-            : "select item"}
-        </p>
-        <Inplace unstyled="true">
-          <InplaceDisplay>
-            <Button label="Edit" severity="info" />
-          </InplaceDisplay>
-          <InplaceContent>
-            <Filters nodes={nodes} onSelectedLabel={setSelectedLabel} />
-          </InplaceContent>
-        </Inplace>
-      </fieldset>
-
-      {[...filterCount].map((_, index) => (
-        <Inplace unstyled="true" key={index}>
-          <InplaceDisplay>
-            <StyledAddGroupButton
-              type="button"
-              label="Add group"
+      {isLoadingState ? (
+        <ProgressSpinner />
+      ) : (
+        <>
+          {!showEditBtnState ? (
+            <>
+              <TreeSelect
+                options={dimensionsNodes}
+                onChange={(e) => setSelectedNodeKeysState(e.value)}
+                value={selectedNodeKeysState}
+                metaKeySelection={false}
+                placeholder="Select Item"
+                onNodeSelect={handleSelectDimensionsNode}
+                filter
+              />
+              <div className="p-inputgroup">
+                <TreeSelect
+                  options={dimLevMemberNodes}
+                  onChange={(e) => setSelectedGroupByKeysState(e.value)}
+                  value={selectedGroupByKeysState}
+                  metaKeySelection={false}
+                  display="chip"
+                  selectionMode="checkbox"
+                  filter
+                  multiple
+                  onNodeSelect={handleSelectGroupByNode}
+                />
+              </div>
+            </>
+          ) : selectedOptionsState ? (
+            selectedOptionsState.map((item, i) => (
+              <StyledSelectedOption key={i}>
+                <Tag unstyled value={item.label} />
+              </StyledSelectedOption>
+            ))
+          ) : null}
+          <StyledButton>
+            {showEditBtnState ? (
+              <Button label="Edit" severity="info" onClick={handleEditFilter} />
+            ) : (
+              <Button
+                label="Apply"
+                severity="info"
+                onClick={handleApplyFilter}
+              />
+            )}
+            <Button
+              label="Delete"
+              severity="danger"
               outlined
-              severity="info"
-              icon="pi pi-plus"
-              onClick={handleAddFilter}
+              onClick={handleDeleteFilter}
             />
-          </InplaceDisplay>
-          <InplaceContent>
-            <fieldset>
-              <Filters nodes={nodes} onSelectedLabel={setSelectedLabel} />
-            </fieldset>
-          </InplaceContent>
-        </Inplace>
-      ))}
+          </StyledButton>
+        </>
+      )}
     </StyledFilters>
   );
 }

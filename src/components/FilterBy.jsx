@@ -19,7 +19,7 @@ const StyledFilter = styled.div`
   }
 `;
 
-function FilterBy({ selectedLabels }) {
+function FilterBy({}) {
   const [filterCount, setFilterCount] = useState([1]);
 
   const handleAddFilter = () => {
@@ -43,7 +43,7 @@ function FilterBy({ selectedLabels }) {
           </InplaceDisplay>
           <InplaceContent>
             <fieldset>
-              <FilterBar selectedLabels={selectedLabels} />
+              <FilterBar />
             </fieldset>
           </InplaceContent>
         </Inplace>

@@ -7,6 +7,7 @@ import NavBar from "./NavBar";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import StartPage from "./StartPage";
+import { FilterProvider } from "../contexts/FilterContext";
 
 const StyledApp = styled.div`
   width: 100%;
@@ -22,9 +23,11 @@ const StyledApp = styled.div`
 function App() {
   return (
     <StyledApp>
-      <NavBar />
-      <Sidebar />
-      <StartPage />
+      <FilterProvider>
+        <NavBar />
+        <Sidebar />
+        <StartPage />
+      </FilterProvider>
       <Footer />
     </StyledApp>
   );

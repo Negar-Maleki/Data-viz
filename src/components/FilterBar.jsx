@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Dropdown } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
 import { Button } from "primereact/button";
+import { useFilter } from "../contexts/FilterContext";
 
 const StyledFilter = styled.div`
   display: grid;
@@ -27,13 +28,12 @@ const StyledButton = styled.div`
   gap: 0.2em;
   grid-auto-flow: column;
 `;
-function FilterBar({ selectedLabels }) {
-  const [selectedItem, setSelectedItem] = useState(null);
+function FilterBar() {
+  const { selectedLabels, applyMajorOptionState, applyOptionsState, dispatch } =
+    useFilter();
+  const [selectedItem, setSelectedItem] = useState("=");
+  const [inputValue, setInputValue] = useState(0);
   const [selectedAggregate, setSelectedAggregate] = useState(null);
-  const [inputValue, setInputValue] = useState(null);
-  const [applyFilter, setApplyFilter] = useState("=");
-
-  const Aggregates = selectedLabels?.more.map((name) => ({ name }));
 
   const filterByOptions = [
     { label: "Equal to", value: "=" },
@@ -44,102 +44,50 @@ function FilterBar({ selectedLabels }) {
   ];
 
   const handleApplyFilter = () => {
-    if (filterByOptions && selectedAggregate) setApplyFilter(filterByOptions);
+    // if (filterByOptions && selectedAggregate) ;
   };
 
-  const handleDeleteFilter = () => {
-    setApplyFilter("=");
-    setInputValue(null);
-  };
+  const handleDeleteFilter = () => {};
+  console.log(applyMajorOptionState, applyOptionsState);
+  async function getFilteredData() {
+    const labelName = selectedLabels.name;
+    const startingDimentsionName =
+      selectedLabels.data.dimensions[0].dimensionName.replace(/ /g, "+");
+    const startingHierarchyName =
+      selectedLabels.data.dimensions[0].hierarchies[0].levels[2].name.replace(
+        / /g,
+        "+"
+      );
+    const measures = selectedLabels.label.replace(/ /g, "+");
 
-  function buildAPIRequest(
-    measures,
-    filters,
-    drilldowns,
-    cuts,
-    order,
-    orderDesc,
-    nonEmpty,
-    parents,
-    sparse
-  ) {
-    let baseUrl =
-      "https://zircon-api.datausa.io/cubes/pums_5/aggregate.jsonrecords?";
-    let queryParams = [];
+    const res = await fetch(
+      `https://zircon-api.datausa.io/cubes/${labelName}/aggregate.jsonrecords?drilldown[]=[Year].[Year]&drilldown[]=[${startingDimentsionName}].[${startingHierarchyName}]&measures[]=${measures}&order=[Measures].[${measures}]&order_desc=true&nonempty=true&parents=true&sparse=true`
+    );
 
-    // Add measures
-    measures.forEach((measure) => {
-      queryParams.push(`measures[]=${encodeURIComponent(measure)}`);
-    });
-
-    // Add filters
-    filters.forEach((filter) => {
-      queryParams.push(`filter[]=${encodeURIComponent(filter)}`);
-    });
-
-    // Add drilldowns
-    drilldowns.forEach((drilldown) => {
-      queryParams.push(`drilldown[]=${encodeURIComponent(drilldown)}`);
-    });
-
-    // Add cuts
-    cuts.forEach((cut) => {
-      queryParams.push(`cut[]=${encodeURIComponent(cut)}`);
-    });
-
-    // Add order
-    if (order) {
-      queryParams.push(`order=${encodeURIComponent(order)}`);
-    }
-
-    // Add order_desc
-    if (orderDesc) {
-      queryParams.push(`order_desc=${orderDesc}`);
-    }
-
-    // Add other parameters
-    if (nonEmpty) {
-      queryParams.push("nonempty=true");
-    }
-    if (parents) {
-      queryParams.push("parents=true");
-    }
-    if (sparse) {
-      queryParams.push("sparse=true");
-    }
-
-    // Construct the final URL
-    const finalUrl = baseUrl + queryParams.join("&");
-
-    return finalUrl;
+    const data = await res.json();
   }
 
-  // Example usage:
-  const apiUrl = buildAPIRequest(
-    ["Total Population"],
-    ["Total Population < 10000", "Record Count = 1000"],
-    ["Total Population < 10000", "Record Count = 1000"],
-    ["[Year].[Year]", "[PUMS Occupation].[Major Occupation Group]"],
-    [
-      "[Geography].[State].%26[04000US02]",
-      "[Employment Status].[Employment Status Parent].%26[Not Employed]",
-    ],
-    "[Measures].[Total Population]",
-    true,
-    true,
-    true,
-    true
-  );
-
-  console.log(apiUrl);
-
+  const aggregates = selectedLabels?.more.map((name) => ({ name }));
+  // function buildFilterString() {
+  //   if (selectedItem === "=") {
+  //     return `${measures} = ${inputValue}`;
+  //   } else if (selectedItem === ">") {
+  //     return `${measures} > ${inputValue}`;
+  //   } else if (selectedItem === "<") {
+  //     return `${measures} < ${inputValue}`;
+  //   } else if (selectedItem === ">=") {
+  //     return `${measures} >= ${inputValue}`;
+  //   } else if (selectedItem === "<=") {
+  //     return `${measures} <= ${inputValue}`;
+  //   }
+  // }
   return (
     <StyledFilter>
       {selectedLabels ? (
         <Dropdown
           value={selectedAggregate}
           onChange={(e) => setSelectedAggregate(e.value)}
-          options={Aggregates}
+          options={aggregates}
           optionLabel="name"
           placeholder="Select..."
           className="w-full md:w-14rem"
