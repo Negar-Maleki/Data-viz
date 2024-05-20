@@ -1,4 +1,4 @@
-import React, { Children, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import { useFilter } from "../contexts/FilterContext";
@@ -28,27 +28,25 @@ const StyledSelectedOption = styled.div`
   width: max-content;
 `;
 
-function GroupedByFilter({ onSelectedLabel, dimensionsNodes }) {
+function GroupedByFilter({
+  dimensionsNodes,
+  selectedMajorOptionState,
+  onSetSelectedMajorOptionState,
+}) {
   const [isLoadingState, setIsLoadingState] = useState(false);
   const [selectedNodeKeysState, setSelectedNodeKeysState] = useState(null);
-  const [selectedMajorOptionState, setSelectedMajorOptionState] =
-    useState(null);
-
   const [selectedOptionsState, setSelectedOptionsState] = useState([]);
   const [filterDataState, setFilterDataState] = useState(null);
   const [selectedGroupByKeysState, setSelectedGroupByKeysState] = useState([]);
   const [showEditBtnState, setShowEditBtnState] = useState(false);
-  const { appliedOptions, dispatch } = useFilter();
+  const { dispatch } = useFilter();
 
   const handleSelectGroupByNode = (e) => {
-    dispatch({ type: "setSelectedGroupByLabels", payload: e.node });
-
     selectedOptionsState.push(e.node);
   };
 
   const handleSelectDimensionsNode = (e) => {
-    onSelectedLabel(e.node);
-    setSelectedMajorOptionState(e.node);
+    onSetSelectedMajorOptionState(e.node);
 
     const cubeName = e.node.data.cubeName;
     const dimensionName = e.node.data.dimensionName;
@@ -99,6 +97,7 @@ function GroupedByFilter({ onSelectedLabel, dimensionsNodes }) {
   };
   const handleEditFilter = () => {
     setShowEditBtnState(false);
+    setSelectedOptionsState([]);
   };
 
   // console.log(
@@ -108,13 +107,18 @@ function GroupedByFilter({ onSelectedLabel, dimensionsNodes }) {
   // );
 
   const handleDeleteFilter = () => {
-    setSelectedMajorOptionState(null);
+    onSetSelectedMajorOptionState(null);
     setShowEditBtnState(false);
     setSelectedOptionsState([]);
     setSelectedGroupByKeysState(null);
     setSelectedNodeKeysState(null);
-    onSelectedLabel(null);
   };
+
+  // const changedMajorOption = Object.values(selectedMajorOptionState);
+  // console.log(changedMajorOption);
+
+  // if (selectedMajorOptionState) {
+  // }
 
   return (
     <StyledFilters>

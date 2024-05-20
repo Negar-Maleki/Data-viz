@@ -29,11 +29,15 @@ const StyledButton = styled.div`
   grid-auto-flow: column;
 `;
 function FilterBar() {
-  const { selectedLabels, applyMajorOptionState, applyOptionsState, dispatch } =
-    useFilter();
+  const {
+    selectedLabels,
+    appliedMajorOption,
+    selectedAggregate,
+    inputValue,
+    appliedOptions,
+    dispatch,
+  } = useFilter();
   const [selectedItem, setSelectedItem] = useState("=");
-  const [inputValue, setInputValue] = useState(0);
-  const [selectedAggregate, setSelectedAggregate] = useState(null);
 
   const filterByOptions = [
     { label: "Equal to", value: "=" },
@@ -43,29 +47,7 @@ function FilterBar() {
     { label: "Less than or equal to", value: "<=" },
   ];
 
-  const handleApplyFilter = () => {
-    // if (filterByOptions && selectedAggregate) ;
-  };
-
   const handleDeleteFilter = () => {};
-  console.log(applyMajorOptionState, applyOptionsState);
-  async function getFilteredData() {
-    const labelName = selectedLabels.name;
-    const startingDimentsionName =
-      selectedLabels.data.dimensions[0].dimensionName.replace(/ /g, "+");
-    const startingHierarchyName =
-      selectedLabels.data.dimensions[0].hierarchies[0].levels[2].name.replace(
-        / /g,
-        "+"
-      );
-    const measures = selectedLabels.label.replace(/ /g, "+");
-
-    const res = await fetch(
-      `https://zircon-api.datausa.io/cubes/${labelName}/aggregate.jsonrecords?drilldown[]=[Year].[Year]&drilldown[]=[${startingDimentsionName}].[${startingHierarchyName}]&measures[]=${measures}&order=[Measures].[${measures}]&order_desc=true&nonempty=true&parents=true&sparse=true`
-    );
-
-    const data = await res.json();
-  }
 
   const aggregates = selectedLabels?.more.map((name) => ({ name }));
   // function buildFilterString() {
@@ -81,12 +63,80 @@ function FilterBar() {
   //     return `${measures} <= ${inputValue}`;
   //   }
   // }
+
+  async function getFilteredData() {
+    const labelName = selectedLabels.name;
+    const startingDimentsionName =
+      selectedLabels.data.dimensions[0].dimensionName.replace(/ /g, "+");
+    const startingHierarchyName =
+      selectedLabels.data.dimensions[0].hierarchies[0].levels[2].name.replace(
+        / /g,
+        "+"
+      );
+    const measures = selectedLabels.label.replace(/ /g, "+");
+    console.log(appliedMajorOption);
+    // try {
+    let url = `https://zircon-api.datausa.io/cubes/${labelName}/aggregate.jsonrecords?drilldown[]=[Year].[Year]&drilldown[]=[${startingDimentsionName}].[${startingHierarchyName}]&measures[]=${measures}&order=[Measures].[${measures}]&order_desc=true&nonempty=true&parents=true&sparse=true`;
+
+    if (appliedMajorOption) {
+      const drilldownParamFirstMajOpt = appliedMajorOption.label.replace(
+        / /g,
+        "+"
+      );
+
+      url = `https://zircon-api.datausa.io/cubes/${labelName}/aggregate.jsonrecords?drilldown[]=[Year].[Year]&drilldown[]=[${drilldownParamFirstMajOpt}].[${drilldownParamFirstMajOpt}]&measures[]=${measures}&order=[Measures].[${measures}]&order_desc=true&nonempty=true&parents=true&sparse=true`;
+    }
+
+    if (appliedOptions) {
+      console.log("Applied Options", appliedOptions);
+    }
+
+    /*if (appliedMajorOption.length > 1) {
+        const cutParams = cutParamRestMajOpt
+          .map((param) =>
+            appliedOptions.length > 0
+              ? `cut[]=${encodeURIComponent(param)}.%26${appliedOptions.map(
+                  (param) =>
+                    `cut[]=${encodeURIComponent(
+                      param.labelreplace(/ /g, "+")
+                    )}`
+                )}`
+              : `cut[]=${encodeURIComponent(param)}`
+          )
+          .join("&");
+        url += `&${cutParams}`;
+        if (appliedOptions.length > 0) {
+          const cutParams = appliedOptions
+            .map((param) => `cut[]=${encodeURIComponent(param.label)}`)
+            .join("&");
+          url += `&${cutParams}`;
+        }
+      }*/
+    //   }
+
+    //   const res = await fetch(url);
+
+    //   if (!res.ok) {
+    //     throw new Error("Network response was not ok");
+    //   }
+    //   const data = await res.json();
+    //   return data;
+    // } catch (error) {
+    //   console.error("Error:", error);
+  }
+
+  const handleApplyFilter = () => {
+    console.log("Apply Filter");
+    getFilteredData();
+  };
   return (
     <StyledFilter>
       {selectedLabels ? (
         <Dropdown
           value={selectedAggregate}
-          onChange={(e) => setSelectedAggregate(e.value)}
+          onChange={(e) =>
+            dispatch({ type: "setSelectedAggregate", payload: e.value })
+          }
           options={aggregates}
           optionLabel="name"
           placeholder="Select..."
@@ -109,7 +159,9 @@ function FilterBar() {
           incrementButtonClassName="p-button-info"
           showButtons
           value={inputValue}
-          onChange={(e) => setInputValue(e.value)}
+          onChange={(e) =>
+            dispatch({ type: "setInputValue", payload: e.value })
+          }
         />
       </StyledNumFilter>
       <StyledButton>

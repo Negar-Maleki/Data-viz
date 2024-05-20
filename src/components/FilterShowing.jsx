@@ -117,11 +117,11 @@ function FilterShowing() {
       }
     });
 
-    nodesArray.forEach((node, i) => {
+    nodesArray?.forEach((node, i) => {
       node.key = i.toString();
       node.children.forEach((nodeChild, j) => {
         nodeChild.key = `${i}-${j}`;
-        nodeChild.children.forEach((nodeChildChild, k) => {
+        nodeChild?.children?.forEach((nodeChildChild, k) => {
           nodeChildChild.key = `${i}-${j}-${k}`;
         });
       });

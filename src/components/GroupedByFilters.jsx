@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Inplace, InplaceContent, InplaceDisplay } from "primereact/inplace";
 import { Button } from "primereact/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFilter } from "../contexts/FilterContext";
 
 import GroupedByFilter from "./GroupedByFilter";
@@ -27,12 +27,21 @@ const StyledAddGroupButton = styled(Button)`
 `;
 
 function GroupedByFilters() {
-  const { selectedLabels } = useFilter();
-  const [selectedLabel, setSelectedLabel] = useState(null);
+  const { groupedBy, selectedLabels, dispatch } = useFilter();
   const [filterCount, setFilterCount] = useState([1]);
+  const [selectedMajorOptionState, setSelectedMajorOptionState] =
+    useState(null);
+  const [addGroupedByFilters, setAddGroupedByFilters] = useState(null);
 
+  const handleAddGroupedByFilters = () => {
+    dispatch({
+      type: "setGroupedBy",
+      payload: addGroupedByFilters,
+    });
+  };
   const handleAddFilter = () => {
-    setFilterCount(filterCount + 1);
+    if (filterCount.length < dimensionsNodes.length)
+      setFilterCount(filterCount + 1);
   };
 
   let dimensionsNodes = selectedLabels?.data.dimensions
@@ -104,26 +113,41 @@ function GroupedByFilters() {
       node.children = node?.children[0]?.children;
     }
   });
+  const filteredNodes = dimensionsNodes?.filter(
+    (nodes) => !Object.values(nodes).includes(selectedMajorOptionState?.label)
+  );
 
+  const handleGroupedByFilters = () => {
+    // dispatch({
+    //   type: "setGroupedBy",
+    //   payload: ,
+    // });
+  };
+  console.log(groupedBy);
   return (
     <StyledFilters>
       <label>Grouped by </label>
       <fieldset>
         <p>
-          {selectedLabels
-            ? selectedLabel
-              ? `${selectedLabel.data.dimensionName} > ${selectedLabel.data.level}`
+          {selectedLabels && filterCount.length === 1
+            ? selectedMajorOptionState
+              ? `${selectedMajorOptionState.data.dimensionName} > ${selectedMajorOptionState.data.level}`
               : `${selectedLabels.data.dimensions[0].dimensionName} > ${selectedLabels.data.dimensions[0].hierarchies[0].levels[1].name}`
             : "select item"}
         </p>
         <Inplace unstyled="true">
           <InplaceDisplay>
-            <Button label="Edit" severity="info" />
+            <Button
+              label="Edit"
+              severity="info"
+              onClick={handleGroupedByFilters}
+            />
           </InplaceDisplay>
           <InplaceContent>
             <GroupedByFilter
               dimensionsNodes={dimensionsNodes}
-              onSelectedLabel={setSelectedLabel}
+              selectedMajorOptionState={selectedMajorOptionState}
+              onSetSelectedMajorOptionState={setSelectedMajorOptionState}
             />
           </InplaceContent>
         </Inplace>
@@ -145,7 +169,8 @@ function GroupedByFilters() {
             <fieldset>
               <GroupedByFilter
                 dimensionsNodes={dimensionsNodes}
-                onSelectedLabel={setSelectedLabel}
+                selectedMajorOptionState={selectedMajorOptionState}
+                onSetSelectedMajorOptionState={setSelectedMajorOptionState}
               />
             </fieldset>
           </InplaceContent>

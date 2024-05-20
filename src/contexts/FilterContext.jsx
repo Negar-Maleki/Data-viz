@@ -5,26 +5,41 @@ const FilteringContext = createContext();
 const initialState = {
   measureNodes: null,
   selectedLabels: null,
-  selectedGroupByLabels: [],
   selectedItem: null,
   selectedAggregate: null,
-  inputValue: null,
+  inputValue: 0,
   applyFilter: "=",
+  groupings: [],
+  appliedMajorOption: [],
+  appliedOptions: [],
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case "setNodes":
       return { ...state, measureNodes: action.payload };
-
     case "setSelectedLabels":
       return { ...state, selectedLabels: action.payload };
-    case "setSelectedGroupByLabels":
-      return { ...state, selectedGroupByLabels: action.payload };
     case "setAppliedMajorOption":
       return { ...state, appliedMajorOption: action.payload };
     case "setAppliedOptions":
       return { ...state, appliedOptions: action.payload };
+    case "setInputValue":
+      return { ...state, inputValue: action.payload };
+    case "setSelectedAggregate":
+      return { ...state, selectedAggregate: action.payload };
+    case "setGroupedBy":
+      return {
+        ...state,
+        groupings: [
+          {
+            grouping: action.payload,
+            cuts: action.payload,
+            active: true,
+            key: action.payload,
+          },
+        ],
+      };
 
     default:
       return new Error("Unknown action");
@@ -36,21 +51,25 @@ function FilterProvider({ children }) {
     {
       measureNodes,
       selectedLabels,
-      selectedGroupByLabels,
       appliedMajorOption,
       appliedOptions,
+      inputValue,
+      selectedAggregate,
+      groupings,
     },
     dispatch,
   ] = useReducer(reducer, initialState);
-  console.log(appliedMajorOption, appliedOptions);
+
   return (
     <FilteringContext.Provider
       value={{
         measureNodes,
         selectedLabels,
-        selectedGroupByLabels,
         appliedMajorOption,
         appliedOptions,
+        inputValue,
+        selectedAggregate,
+        groupings,
         dispatch,
       }}
     >
