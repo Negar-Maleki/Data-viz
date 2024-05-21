@@ -1,10 +1,12 @@
+import { clear } from "@testing-library/user-event/dist/clear";
 import { createContext, useContext, useReducer } from "react";
 
 const FilteringContext = createContext();
 
 const initialState = {
   measureNodes: null,
-  selectedLabels: null,
+  dimensionNodes: null,
+  selectedMeasure: null,
   selectedItem: null,
   selectedAggregate: null,
   inputValue: 0,
@@ -18,8 +20,17 @@ function reducer(state, action) {
   switch (action.type) {
     case "setNodes":
       return { ...state, measureNodes: action.payload };
-    case "setSelectedLabels":
-      return { ...state, selectedLabels: action.payload };
+    case "setMeasure": {
+      return {
+        ...state,
+        selectedMeasure: action.payload,
+      };
+    }
+    case "setDimensionNodes":
+      return {
+        ...state,
+        dimensionNodes: action.payload,
+      };
     case "setAppliedMajorOption":
       return { ...state, appliedMajorOption: action.payload };
     case "setAppliedOptions":
@@ -28,19 +39,53 @@ function reducer(state, action) {
       return { ...state, inputValue: action.payload };
     case "setSelectedAggregate":
       return { ...state, selectedAggregate: action.payload };
-    case "setGroupedBy":
+    case "addGroupings":
       return {
         ...state,
-        groupings: [
-          {
-            grouping: action.payload,
-            cuts: action.payload,
-            active: true,
-            key: action.payload,
-          },
-        ],
+        groupings: [...state.groupings, action.payload],
       };
-
+    case "replaceGrouping":
+      const newGroupings = state.groupings.filter(
+        (grouping) => grouping.drillDown.key === action.payload.oldGroupingKey
+      );
+      return {
+        ...state,
+        groupings: [...newGroupings, action.payload.newGrouping],
+      };
+    case "removeGrouping":
+      return {
+        ...state,
+        groupings: state.groupings.filter(
+          (grouping) => grouping.drillDown.key !== action.payload
+        ),
+      };
+    case "setSelectedItem":
+      return {
+        ...state,
+        selectedItem: action.payload,
+      };
+    case "setApplyFilter":
+      return {
+        ...state,
+        applyFilter: action.payload,
+      };
+    case "clear":
+      return {
+        ...state,
+        groupings: [],
+        appliedMajorOption: [],
+        appliedOptions: [],
+      };
+    case "clearGroupings":
+      return {
+        ...state,
+        groupings: [],
+      };
+    case "clearAppliedOptions":
+      return {
+        ...state,
+        appliedOptions: [],
+      };
     default:
       return new Error("Unknown action");
   }
@@ -50,12 +95,13 @@ function FilterProvider({ children }) {
   const [
     {
       measureNodes,
-      selectedLabels,
+      selectedMeasure,
       appliedMajorOption,
       appliedOptions,
       inputValue,
       selectedAggregate,
       groupings,
+      dimensionNodes,
     },
     dispatch,
   ] = useReducer(reducer, initialState);
@@ -64,12 +110,13 @@ function FilterProvider({ children }) {
     <FilteringContext.Provider
       value={{
         measureNodes,
-        selectedLabels,
+        selectedMeasure,
         appliedMajorOption,
         appliedOptions,
         inputValue,
         selectedAggregate,
         groupings,
+        dimensionNodes,
         dispatch,
       }}
     >

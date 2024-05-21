@@ -1,7 +1,5 @@
-import { useState } from "react";
-
 import styled from "styled-components";
-import FilterShowing from "./FilterShowing";
+import SidebarDisplay from "./SidebarDisplay";
 
 const StyledSidebar = styled.div`
   grid-column: 1/2;
@@ -17,7 +15,7 @@ const StyledSidebar = styled.div`
 function Sidebar() {
   return (
     <StyledSidebar>
-      <FilterShowing />
+      <SidebarDisplay />
     </StyledSidebar>
   );
 }

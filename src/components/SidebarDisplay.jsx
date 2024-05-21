@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import GroupedByFilters from "./GroupedByFilters";
+import Groupings from "./Groupings";
 import FilterBy from "./FilterBy";
 
 import { TreeSelect } from "primereact/treeselect";
@@ -23,8 +23,8 @@ const StyledFilters = styled.div`
   }
 `;
 
-function FilterShowing() {
-  const { selectedLabels, measureNodes, dispatch } = useFilter();
+function SidebarDisplay() {
+  const { selectedMeasure, measureNodes, dispatch } = useFilter();
   const [selectedNodeKey, setSelectedNodeKey] = useState(null);
   const nodesArray = [];
   const data = useContext(DataContext);
@@ -133,8 +133,90 @@ function FilterShowing() {
     dispatch({ type: "setNodes", payload: nodesArray });
   }, [data]);
 
-  const setSelectedLabels = (e) =>
-    dispatch({ type: "setSelectedLabels", payload: e.node });
+  const setSelectedMeasure = (e) => {
+    let dimensionsNodes = e.node.data.dimensions
+      .filter((dim) => dim.dimensionName !== "Year")
+      .map((dim, i) => {
+        if (dim.hierarchies.length === 1) {
+          if (dim.hierarchies[0].levels.length <= 2) {
+            return {
+              label: dim.dimensionName,
+              selectable: true,
+              key: `${i}`,
+              data: {
+                dimensionName: dim.dimensionName,
+                hierarchyName: dim.hierarchies[0].name,
+                cubeName: dim.cubeName,
+                level: dim.hierarchies[0].levels[1].name,
+              },
+            };
+          } else {
+            return {
+              label: dim.dimensionName,
+              selectable: false,
+              key: `${i}`,
+              children: dim.hierarchies[0].levels
+                .filter((level) => level.name !== "(All)")
+                .map((level, j) => ({
+                  label: level.name,
+                  key: `${i}-${j}`,
+                  selectable: true,
+                  data: {
+                    dimensionName: dim.dimensionName,
+                    hierarchyName: dim.hierarchies[0].name,
+                    cubeName: dim.cubeName,
+                    level: level.name,
+                  },
+                })),
+            };
+          }
+        } else {
+          return {
+            label: dim.dimensionName,
+            selectable: false,
+            key: `${i}`,
+            children: dim.hierarchies.map((hier, j) => ({
+              label: hier.name,
+              key: `${i}-${j}`,
+              selectable: hier.levels.length > 2 ? false : true,
+              data: {
+                dimensionName: dim.dimensionName,
+                hierarchyName: hier.name,
+                cubeName: dim.cubeName,
+                level: hier.name,
+              },
+              children: hier.levels
+                .filter(
+                  (level) => level.name !== "(All)" && level.name !== hier.name
+                )
+                .map((level, k) => ({
+                  label: level.name,
+                  data: {
+                    dimensionName: dim.dimensionName,
+                    hierarchyName: hier.name,
+                    cubeName: dim.cubeName,
+                    level: level.name,
+                  },
+                  key: `${i}-${j}-${k}`,
+                })),
+            })),
+          };
+        }
+      });
+    dimensionsNodes?.forEach((node) => {
+      if (node?.children?.length === 1) {
+        node.children = node?.children[0]?.children;
+      }
+    });
+    dispatch({ type: "setMeasure", payload: e.node });
+    dispatch({ type: "setDimensionNodes", payload: dimensionsNodes });
+
+    const firstGrouping = dimensionsNodes[0]?.children[0];
+    dispatch({
+      type: "addGroupings",
+      payload: { drillDown: firstGrouping, cuts: [], active: false },
+    });
+  };
 
   if (!measureNodes || measureNodes.length === 0)
     return (
@@ -145,7 +227,8 @@ function FilterShowing() {
         animationDuration=".5s"
       />
     );
-  const labels = selectedLabels?.data ? selectedLabels.data.dimensions : null;
+
+  const labels = selectedMeasure?.data ? selectedMeasure.data.dimensions : null;
 
   return (
     <>
@@ -160,7 +243,7 @@ function FilterShowing() {
           placeholder="Select Item"
           showClear
           inputId="treeSelect"
-          onNodeSelect={setSelectedLabels}
+          onNodeSelect={setSelectedMeasure}
         />
 
         <span>
@@ -181,10 +264,10 @@ function FilterShowing() {
         </span>
       </StyledFilters>
 
-      <GroupedByFilters />
+      <Groupings />
       <FilterBy />
     </>
   );
 }
 
-export default FilterShowing;
+export default SidebarDisplay;
