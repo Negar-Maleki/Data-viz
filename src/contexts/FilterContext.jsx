@@ -1,4 +1,3 @@
-import { clear } from "@testing-library/user-event/dist/clear";
 import { createContext, useContext, useReducer } from "react";
 
 const FilteringContext = createContext();
@@ -24,6 +23,7 @@ function reducer(state, action) {
       return {
         ...state,
         selectedMeasure: action.payload,
+        groupings: [],
       };
     }
     case "setDimensionNodes":

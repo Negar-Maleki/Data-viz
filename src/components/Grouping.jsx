@@ -42,24 +42,34 @@ function Grouping({ grouping, selectedMajorOption, onSetSelectedMajorOption }) {
   const handleSelectGroupByNode = (e) => {
     selectedOptionsState.push(e.node);
   };
-  console.log(grouping);
+  console.log(groupings);
   console.log(selectedMeasure);
   console.log(grouping.drillDown.label);
-  console.log(selectedMeasure.data.dimensions[0].hierarchies[0].levels[1].name);
+  console.log(selectedMeasure);
+
+  const groupingLabels = groupings.map((grouping) => grouping.drillDown.label);
+
+  // const filteredDimensions = selectedMeasure.data.dimensions.find((dim) =>
+  //   dim.hierarchies[0].levels.length < 3
+  //     ? !groupingLabels.includes(dim.dimensionName)
+  //     : !groupingLabels.includes(dim.hierarchies[0].levels[1].name)
+  // );
+
   useEffect(() => {
-    if (
-      !selectedMajorOption &&
-      grouping.drillDown.label ===
-        selectedMeasure.data.dimensions[0].hierarchies[0].levels[1].name
-    ) {
+    if (!selectedMajorOption && groupings.length === 1) {
+      const groupingDrilldown = groupings.map((grouping) => grouping.drillDown);
+      const groupNum = groupings.length - 1;
+      console.log(groupNum);
+      console.log(groupingDrilldown[0].data);
+      const cubeName = groupingDrilldown[0].data.cubeName;
+      const dimensionName = groupingDrilldown[0].data.dimensionName;
+      const hierarchyName = groupingDrilldown[0].data.hierarchyName;
+      const levelName = groupingDrilldown[0].data.level;
+      console.log(cubeName, dimensionName, hierarchyName, levelName);
+
       async function getFirstGroup() {
         setIsLoading(true);
-        const cubeName = selectedMeasure.name;
-        const dimensionName = selectedMeasure.data.dimensions[0].dimensionName;
-        const hierarchyName =
-          selectedMeasure.data.dimensions[0].hierarchies[0].name;
-        const levelName =
-          selectedMeasure.data.dimensions[0].hierarchies[0].levels[1].name;
+
         const res = await fetch(
           `https://zircon-api.datausa.io/cubes/${cubeName}/dimensions/${dimensionName}/hierarchies/${hierarchyName}/levels/${levelName}/members?children=false`
         );
@@ -70,7 +80,7 @@ function Grouping({ grouping, selectedMajorOption, onSetSelectedMajorOption }) {
       }
       getFirstGroup();
     }
-  }, []);
+  }, [groupings.length]);
 
   const handleSelectDimensionsNode = (e) => {
     onSetSelectedMajorOption(e.node);
@@ -85,6 +95,10 @@ function Grouping({ grouping, selectedMajorOption, onSetSelectedMajorOption }) {
   };
   console.log(selectedMajorOption);
   // useEffect(() => {
+  // const cubeName = selectedMeasure.name;
+  // const dimensionName = filteredDimensions[1].dimensionName;
+  // const hierarchyName = filteredDimensions[1].hierarchies[0].name;
+  // const levelName = filteredDimensions[1].hierarchies[0].levels[1].name;
   //   const cubeName = selectedMajorOption.data.cubeName;
   //   const dimensionName = selectedMajorOption.data.dimensionName;
   //   const hierarchyName = selectedMajorOption.data.hierarchyName;

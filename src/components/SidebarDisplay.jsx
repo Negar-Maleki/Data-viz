@@ -210,8 +210,13 @@ function SidebarDisplay() {
     });
     dispatch({ type: "setMeasure", payload: e.node });
     dispatch({ type: "setDimensionNodes", payload: dimensionsNodes });
+    console.log(dimensionsNodes);
 
-    const firstGrouping = dimensionsNodes[0]?.children[0];
+    const firstGrouping =
+      dimensionsNodes[0]?.children !== undefined
+        ? dimensionsNodes[0].children[0]
+        : dimensionsNodes[0];
+
     dispatch({
       type: "addGroupings",
       payload: { drillDown: firstGrouping, cuts: [], active: false },
@@ -237,7 +242,9 @@ function SidebarDisplay() {
 
         <TreeSelect
           value={selectedNodeKey}
-          onChange={(e) => setSelectedNodeKey(e.value)}
+          onChange={(e) => {
+            setSelectedNodeKey(e.value);
+          }}
           options={measureNodes}
           filter
           placeholder="Select Item"
