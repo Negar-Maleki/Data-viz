@@ -84,7 +84,7 @@ function FilterBar() {
         "+"
       );
 
-      url = `https://zircon-api.datausa.io/cubes/${labelName}/aggregate.jsonrecords?drilldown[]=[Year].[Year]&drilldown[]=[${drilldownParamFirstMajOpt}].[${drilldownParamFirstMajOpt}]&measures[]=${measures}&order=[Measures].[${measures}]&order_desc=true&nonempty=true&parents=true&sparse=true`;
+      url = `https://arkansas-api.datausa.io/cubes/${labelName}/aggregate.jsonrecords?drilldown[]=[Year].[Year]&drilldown[]=[${drilldownParamFirstMajOpt}].[${drilldownParamFirstMajOpt}]&measures[]=${measures}&order=[Measures].[${measures}]&order_desc=true&nonempty=true&parents=true&sparse=true`;
     }
 
     if (appliedOptions) {

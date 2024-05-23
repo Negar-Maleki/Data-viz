@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
-import Groupings from "./Groupings";
+import MasterGrouping from "./MasterGrouping";
 import FilterBy from "./FilterBy";
 
 import { TreeSelect } from "primereact/treeselect";
@@ -26,8 +26,10 @@ const StyledFilters = styled.div`
 function SidebarDisplay() {
   const { selectedMeasure, measureNodes, dispatch } = useFilter();
   const [selectedNodeKey, setSelectedNodeKey] = useState(null);
+
   const nodesArray = [];
   const data = useContext(DataContext);
+
   useEffect(() => {
     data.forEach((item) => {
       const annotation = item.annotations;
@@ -210,7 +212,6 @@ function SidebarDisplay() {
     });
     dispatch({ type: "setMeasure", payload: e.node });
     dispatch({ type: "setDimensionNodes", payload: dimensionsNodes });
-    console.log(dimensionsNodes);
 
     const firstGrouping =
       dimensionsNodes[0]?.children !== undefined
@@ -223,6 +224,8 @@ function SidebarDisplay() {
     });
   };
 
+  const labels = selectedMeasure?.data ? selectedMeasure.data.dimensions : null;
+
   if (!measureNodes || measureNodes.length === 0)
     return (
       <ProgressSpinner
@@ -232,8 +235,6 @@ function SidebarDisplay() {
         animationDuration=".5s"
       />
     );
-
-  const labels = selectedMeasure?.data ? selectedMeasure.data.dimensions : null;
 
   return (
     <>
@@ -270,8 +271,7 @@ function SidebarDisplay() {
           ) : null}
         </span>
       </StyledFilters>
-
-      <Groupings />
+      <MasterGrouping />
       <FilterBy />
     </>
   );

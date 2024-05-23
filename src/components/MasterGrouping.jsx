@@ -1,17 +1,17 @@
 import styled from "styled-components";
 
 import { Button } from "primereact/button";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useFilter } from "../contexts/FilterContext";
 
-import Grouping from "./Grouping";
+import ChildGrouping from "./ChildGrouping";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 const StyledFilters = styled.div`
-  display: grid;
-  min-height: 3.5em;
-  /* background-color: #fff;
+  /* display: ${(props) => (props.groupings ? "grid" : "none")};
+  background: ${(props) => (props.groupings ? "red" : "transparent")};
   padding: 1em;
-  border: 0.5px solid #33333318;
+  border: ${(props) => (props.groupings ? "0.5px solid #33333318" : "none")};
   border-radius: 5px; */
 
   label {
@@ -25,24 +25,58 @@ const StyledAddGroupButton = styled(Button)`
   margin-top: 1em;
 `;
 
-function Groupings() {
+function MasterGrouping() {
   const { selectedMeasure, dimensionNodes, groupings, dispatch } = useFilter();
   const [selectedMajorOption, setSelectedMajorOption] = useState(null);
   const [addgroupClickCount, setAddgroupClickCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [cutsData, setCutsData] = useState(null);
 
+  const getCutsData = async (grouping) => {
+    let drillDown;
+    if (!selectedMajorOption) {
+      drillDown = grouping.drillDown.data;
+    } else {
+      drillDown = selectedMajorOption.data;
+      console.log(drillDown);
+    }
+    const cubeName = drillDown?.cubeName;
+    const dimensionName = drillDown?.dimensionName;
+    const hierarchyName = drillDown?.hierarchyName;
+    const levelName = drillDown?.level;
+
+    async function getCutsData() {
+      setIsLoading(true);
+
+      const res = await fetch(
+        `https://arkansas-api.datausa.io/cubes/${cubeName}/dimensions/${dimensionName}/hierarchies/${hierarchyName}/levels/${levelName}/members?children=false`
+      );
+      const data = await res.json();
+      setCutsData(data);
+      setIsLoading(false);
+    }
+    if (cubeName && dimensionName && hierarchyName && levelName) getCutsData();
+  };
+
+  useEffect(() => {
+    groupings.forEach((grouping) => {
+      getCutsData(grouping);
+    });
+  }, [groupings]);
   const maxAddGroup = dimensionNodes?.length;
 
   const handleAddFilter = () => {
     const flattenDimensions = dimensionNodes
       .map((node) => (node.selectable === true ? node : node.children))
       .flat(1);
-
+    console.log(flattenDimensions);
     const nextGrouping = flattenDimensions.filter((node) => {
       return !groupings.some(
         (grouping) =>
           grouping.drillDown.key.split("-")[0] === node.key.split("-")[0]
       );
     });
+    console.log(nextGrouping);
     if (addgroupClickCount < maxAddGroup) {
       setAddgroupClickCount(addgroupClickCount + 1);
     }
@@ -51,29 +85,38 @@ function Groupings() {
       payload: { drillDown: nextGrouping[0], cuts: [], active: false },
     });
   };
+  const cutsNodes = cutsData?.members.map((member) => ({
+    label: member.name,
+    key: member.key,
+  }));
 
   return (
     <>
       <label>Grouped by </label>
-      <StyledFilters>
-        {groupings.map((grouping) => (
-          <Fragment key={grouping.drillDown.key}>
-            <p>
-              {selectedMajorOption
-                ? `${selectedMajorOption.data?.dimensionName} > ${selectedMajorOption.data.level}`
-                : grouping.drillDown.data
-                ? `${grouping.drillDown.data.dimensionName} > ${grouping.drillDown.data.level}`
-                : `${selectedMeasure.data.dimensions[0].dimensionName} >
+      {isLoading ? (
+        <ProgressSpinner />
+      ) : (
+        <StyledFilters>
+          {groupings.map((grouping) => (
+            <Fragment key={grouping.drillDown.key}>
+              <p>
+                {selectedMajorOption
+                  ? `${selectedMajorOption.data?.dimensionName} > ${selectedMajorOption.data.level}`
+                  : grouping.drillDown.data
+                  ? `${grouping.drillDown.data.dimensionName} > ${grouping.drillDown.data.level}`
+                  : `${selectedMeasure.data.dimensions[0].dimensionName} >
                   ${grouping.drillDown.label}`}
-            </p>
-            <Grouping
-              grouping={grouping}
-              selectedMajorOption={selectedMajorOption}
-              onSetSelectedMajorOption={setSelectedMajorOption}
-            />
-          </Fragment>
-        ))}
-      </StyledFilters>
+              </p>
+              <ChildGrouping
+                grouping={grouping}
+                selectedMajorOption={selectedMajorOption}
+                onSetSelectedMajorOption={setSelectedMajorOption}
+                cutsNodes={cutsNodes}
+              />
+            </Fragment>
+          ))}
+        </StyledFilters>
+      )}
       <StyledAddGroupButton
         type="button"
         label="Add group"
@@ -87,7 +130,7 @@ function Groupings() {
   );
 }
 
-export default Groupings;
+export default MasterGrouping;
 
 /*
    <label>Grouped by </label>

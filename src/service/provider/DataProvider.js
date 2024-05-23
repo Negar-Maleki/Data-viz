@@ -8,7 +8,7 @@ const DataProvider = ({ children }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("https://zircon-api.datausa.io/cubes");
+        const res = await fetch(" https://arkansas-api.datausa.io/cubes");
         if (!res.ok) throw new Error("Failed getting data");
 
         const data = await res.json();
