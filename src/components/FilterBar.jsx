@@ -74,7 +74,7 @@ function FilterBar() {
         "+"
       );
     const measures = selectedLabels.label.replace(/ /g, "+");
-    console.log(appliedMajorOption);
+
     // try {
     let url = `https://zircon-api.datausa.io/cubes/${labelName}/aggregate.jsonrecords?drilldown[]=[Year].[Year]&drilldown[]=[${startingDimentsionName}].[${startingHierarchyName}]&measures[]=${measures}&order=[Measures].[${measures}]&order_desc=true&nonempty=true&parents=true&sparse=true`;
 
@@ -88,7 +88,7 @@ function FilterBar() {
     }
 
     if (appliedOptions) {
-      console.log("Applied Options", appliedOptions);
+      // console.log("Applied Options", appliedOptions);
     }
 
     /*if (appliedMajorOption.length > 1) {
@@ -126,7 +126,7 @@ function FilterBar() {
   }
 
   const handleApplyFilter = () => {
-    console.log("Apply Filter");
+    // console.log("Apply Filter");
     getFilteredData();
   };
   return (

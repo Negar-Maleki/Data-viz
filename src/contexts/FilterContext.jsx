@@ -6,20 +6,16 @@ const initialState = {
   measureNodes: null,
   dimensionNodes: null,
   selectedMeasure: null,
-  selectedItem: null,
-  selectedAggregate: null,
-  inputValue: 0,
-  applyFilter: "=",
   groupings: [],
-  appliedMajorOption: [],
-  appliedOptions: [],
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case "setNodes":
+      console.log("setNodes", action.payload);
       return { ...state, measureNodes: action.payload };
     case "setMeasure": {
+      console.log("setMeasure", action.payload);
       return {
         ...state,
         selectedMeasure: action.payload,
@@ -27,65 +23,40 @@ function reducer(state, action) {
       };
     }
     case "setDimensionNodes":
+      console.log("setDimensionNodes", action.payload);
       return {
         ...state,
         dimensionNodes: action.payload,
       };
-    case "setAppliedMajorOption":
-      return { ...state, appliedMajorOption: action.payload };
-    case "setAppliedOptions":
-      return { ...state, appliedOptions: action.payload };
-    case "setInputValue":
-      return { ...state, inputValue: action.payload };
-    case "setSelectedAggregate":
-      return { ...state, selectedAggregate: action.payload };
     case "addGroupings":
+      console.log("addGroupings", action.payload);
       return {
         ...state,
         groupings: [...state.groupings, action.payload],
       };
     case "replaceGrouping":
+      console.log("replaceGrouping", action.payload);
+      const oldKey = action.payload.oldKey;
+      const newGrouping = action.payload.newGrouping;
+
       const newGroupings = state.groupings.filter(
-        (grouping) => grouping.drillDown.key === action.payload.oldGroupingKey
+        (grouping) => grouping.drillDown.key !== oldKey
       );
+
+      newGroupings.push(newGrouping);
       return {
         ...state,
-        groupings: [...newGroupings, action.payload.newGrouping],
+        groupings: newGroupings,
       };
     case "removeGrouping":
+      console.log("removeGrouping", action.payload);
       return {
         ...state,
         groupings: state.groupings.filter(
           (grouping) => grouping.drillDown.key !== action.payload
         ),
       };
-    case "setSelectedItem":
-      return {
-        ...state,
-        selectedItem: action.payload,
-      };
-    case "setApplyFilter":
-      return {
-        ...state,
-        applyFilter: action.payload,
-      };
-    case "clear":
-      return {
-        ...state,
-        groupings: [],
-        appliedMajorOption: [],
-        appliedOptions: [],
-      };
-    case "clearGroupings":
-      return {
-        ...state,
-        groupings: [],
-      };
-    case "clearAppliedOptions":
-      return {
-        ...state,
-        appliedOptions: [],
-      };
+
     default:
       return new Error("Unknown action");
   }
@@ -93,16 +64,7 @@ function reducer(state, action) {
 
 function FilterProvider({ children }) {
   const [
-    {
-      measureNodes,
-      selectedMeasure,
-      appliedMajorOption,
-      appliedOptions,
-      inputValue,
-      selectedAggregate,
-      groupings,
-      dimensionNodes,
-    },
+    { measureNodes, selectedMeasure, groupings, dimensionNodes },
     dispatch,
   ] = useReducer(reducer, initialState);
 
@@ -111,10 +73,6 @@ function FilterProvider({ children }) {
       value={{
         measureNodes,
         selectedMeasure,
-        appliedMajorOption,
-        appliedOptions,
-        inputValue,
-        selectedAggregate,
         groupings,
         dimensionNodes,
         dispatch,

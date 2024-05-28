@@ -220,7 +220,13 @@ function SidebarDisplay() {
 
     dispatch({
       type: "addGroupings",
-      payload: { drillDown: firstGrouping, cuts: [], active: false },
+      payload: {
+        drillDown: firstGrouping,
+        selectedCuts: [],
+        active: false,
+        needsApiCall: true,
+        cutsOptions: [],
+      },
     });
   };
 

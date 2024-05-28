@@ -31,22 +31,19 @@ function ChildGrouping({
   grouping,
   selectedMajorOption,
   onSetSelectedMajorOption,
-  cutsNodes,
 }) {
   const [selectedDimensionKey, setSelectedDimensionKey] = useState(
     grouping.drillDown.key
   );
 
   const [selectedCutsKeys, setSelectedCutsKeys] = useState([]);
-  const { selectedMeasure, groupings, dimensionNodes, dispatch } = useFilter();
-  const [selectedOptionsState, setSelectedOptionsState] = useState([]);
-  const [showEditBtnState, setShowEditBtnState] = useState(false);
+  const { groupings, dimensionNodes, dispatch } = useFilter();
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [isEditButtonVisible, setIsEditButtonVisible] = useState(false);
 
   const handleSelectGroupByNode = (e) => {
-    selectedOptionsState.push(e.node);
+    selectedOptions.push(e.node);
   };
-
-  const groupingLabels = groupings.map((grouping) => grouping.drillDown.label);
 
   const handleSelectDimensionsNode = (e) => {
     onSetSelectedMajorOption(e.node);
@@ -55,34 +52,39 @@ function ChildGrouping({
       type: "replaceGrouping",
       payload: {
         oldKey: grouping.drillDown.key,
-        newGrouping: { active: false, drillDown: e.node, cuts: [] },
+        newGrouping: {
+          drillDown: e.node,
+          selectedCuts: [],
+          active: false,
+          cutsOptions: [],
+        },
       },
     });
   };
 
   const handleApplyFilter = () => {
-    if (selectedMajorOption && selectedOptionsState.length === 0) {
+    if (selectedMajorOption && selectedOptions.length === 0) {
       dispatch({
         type: "setAppliedMajorOption",
         payload: selectedMajorOption,
       });
 
-      setShowEditBtnState(true);
-    } else if (selectedOptionsState && selectedOptionsState.length > 0) {
+      setIsEditButtonVisible(true);
+    } else if (selectedOptions && selectedOptions.length > 0) {
       dispatch({
         type: "setAppliedOptions",
-        payload: selectedOptionsState,
+        payload: selectedOptions,
       });
       dispatch({
         type: "setAppliedMajorOption",
         payload: selectedMajorOption,
       });
-      setShowEditBtnState(true);
+      setIsEditButtonVisible(true);
     }
   };
   const handleEditFilter = () => {
-    setShowEditBtnState(false);
-    setSelectedOptionsState([]);
+    setIsEditButtonVisible(false);
+    setSelectedOptions([]);
   };
 
   const handleDeleteFilter = () => {
@@ -96,9 +98,12 @@ function ChildGrouping({
     setSelectedDimensionKey(e.value);
   };
 
+  // console.log("grouping", grouping);
+  // console.log("dimensionNodes", dimensionNodes);
+  // console.log("newDimensionNodes", newDimensionNodes);
   return (
     <StyledFilters>
-      {!showEditBtnState ? (
+      {!isEditButtonVisible ? (
         <>
           <TreeSelect
             options={dimensionNodes}
@@ -111,7 +116,7 @@ function ChildGrouping({
           />
           <div className="p-inputgroup">
             <TreeSelect
-              options={cutsNodes}
+              options={grouping.cutsOptions}
               onChange={(e) => setSelectedCutsKeys(e.value)}
               value={selectedCutsKeys}
               metaKeySelection={false}
@@ -123,15 +128,15 @@ function ChildGrouping({
             />
           </div>
         </>
-      ) : selectedOptionsState ? (
-        selectedOptionsState.map((item, i) => (
+      ) : selectedOptions ? (
+        selectedOptions.map((item, i) => (
           <StyledSelectedOption key={i}>
             <Tag unstyled value={item.label} />
           </StyledSelectedOption>
         ))
       ) : null}
       <StyledButton>
-        {showEditBtnState ? (
+        {isEditButtonVisible ? (
           <Button label="Edit" severity="info" onClick={handleEditFilter} />
         ) : (
           <Button label="Apply" severity="info" onClick={handleApplyFilter} />
