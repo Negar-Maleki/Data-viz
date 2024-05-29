@@ -12,10 +12,10 @@ const initialState = {
 function reducer(state, action) {
   switch (action.type) {
     case "setNodes":
-      console.log("setNodes", action.payload);
+      // console.log("setNodes", action.payload);
       return { ...state, measureNodes: action.payload };
     case "setMeasure": {
-      console.log("setMeasure", action.payload);
+      // console.log("setMeasure", action.payload);
       return {
         ...state,
         selectedMeasure: action.payload,
@@ -23,19 +23,19 @@ function reducer(state, action) {
       };
     }
     case "setDimensionNodes":
-      console.log("setDimensionNodes", action.payload);
+      // console.log("setDimensionNodes", action.payload);
       return {
         ...state,
         dimensionNodes: action.payload,
       };
     case "addGroupings":
-      console.log("addGroupings", action.payload);
+      // console.log("addGroupings", action.payload);
       return {
         ...state,
         groupings: [...state.groupings, action.payload],
       };
     case "replaceGrouping":
-      console.log("replaceGrouping", action.payload);
+      // console.log("replaceGrouping", action.payload);
       const oldKey = action.payload.oldKey;
       const newGrouping = action.payload.newGrouping;
 
@@ -49,7 +49,7 @@ function reducer(state, action) {
         groupings: newGroupings,
       };
     case "removeGrouping":
-      console.log("removeGrouping", action.payload);
+      // console.log("removeGrouping", action.payload);
       return {
         ...state,
         groupings: state.groupings.filter(

@@ -136,6 +136,7 @@ function SidebarDisplay() {
   }, [data]);
 
   const setSelectedMeasure = (e) => {
+    console.log("e.node", e.node);
     let dimensionsNodes = e.node.data.dimensions
       .filter((dim) => dim.dimensionName !== "Year")
       .map((dim, i) => {

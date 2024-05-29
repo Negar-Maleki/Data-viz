@@ -31,6 +31,7 @@ function ChildGrouping({
   grouping,
   selectedMajorOption,
   onSetSelectedMajorOption,
+  getCutsData,
 }) {
   const [selectedDimensionKey, setSelectedDimensionKey] = useState(
     grouping.drillDown.key
@@ -45,9 +46,9 @@ function ChildGrouping({
     selectedOptions.push(e.node);
   };
 
-  const handleSelectDimensionsNode = (e) => {
+  const handleSelectDimensionsNode = async (e) => {
     onSetSelectedMajorOption(e.node);
-
+    const groupCuts = await getCutsData(e.node);
     dispatch({
       type: "replaceGrouping",
       payload: {
@@ -56,7 +57,10 @@ function ChildGrouping({
           drillDown: e.node,
           selectedCuts: [],
           active: false,
-          cutsOptions: [],
+          cutsOptions: groupCuts.members.map((member) => ({
+            label: member.name,
+            key: member.key,
+          })),
         },
       },
     });

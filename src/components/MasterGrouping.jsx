@@ -1,12 +1,12 @@
 import styled from "styled-components";
 
 import { Button } from "primereact/button";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
+import React from "react";
 import { useFilter } from "../contexts/FilterContext";
 
 import ChildGrouping from "./ChildGrouping";
 import { ProgressSpinner } from "primereact/progressspinner";
-import { type } from "@testing-library/user-event/dist/type";
 
 const StyledFilters = styled.div`
   /* display: ${(props) => (props.groupings ? "grid" : "none")};
@@ -32,59 +32,40 @@ function MasterGrouping() {
   const [addgroupClickCount, setAddgroupClickCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const getCutsData = async (grouping) => {
-    let drillDown;
-
-    if (grouping.drillDown) {
-      drillDown = grouping.drillDown.data;
-    } else {
-      drillDown = grouping.data;
-    }
-
-    const cubeName = drillDown?.cubeName;
-    const dimensionName = drillDown?.dimensionName;
-    const hierarchyName = drillDown?.hierarchyName;
-    const levelName = drillDown?.level;
+  const getCutsData = useCallback(async (grouping) => {
+    const cubeName = grouping.data.cubeName;
+    const dimensionName = grouping.data.dimensionName;
+    const hierarchyName = grouping.data.hierarchyName;
+    const levelName = grouping.data.level;
 
     async function getCutsDataApi() {
       setIsLoading(true);
 
-      const res = await fetch(
-        `https://arkansas-api.datausa.io/cubes/${cubeName}/dimensions/${dimensionName}/hierarchies/${hierarchyName}/levels/${levelName}/members?children=false`
-      );
-      const data = await res.json();
-      setIsLoading(false);
-
-      // dispatch({
-      //   type: "replaceGrouping",
-      //   payload: {
-      //     oldKey: grouping.drillDown.key,
-      //     newGrouping: {
-      //       drillDown: grouping.drillDown,
-      //       selectedCuts: [],
-      //       active: false,
-      //       cutsOptions: data.members.map((member) => ({
-      //         label: member.name,
-      //         key: member.key,
-      //       })),
-      //     },
-      //   },
-      // });
-      return console.log("data", data);
+      try {
+        const res = await fetch(
+          `https://arkansas-api.datausa.io/cubes/${cubeName}/dimensions/${dimensionName}/hierarchies/${hierarchyName}/levels/${levelName}/members?children=false`
+        );
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await res.json();
+        return data;
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
     }
-    if (cubeName && dimensionName && hierarchyName && levelName)
-      getCutsDataApi();
-  };
-  console.log("groupings", groupings);
-  // useEffect(() => {
-  //   groupings.forEach((grouping) => {
-  //     getCutsData(grouping);
-  //   });
-  // }, [groupings]);
+    if (cubeName && dimensionName && hierarchyName && levelName) {
+      return await getCutsDataApi();
+    }
+    return null;
+  });
 
   const maxAddGroup = selectedMeasure?.data.dimensions.length;
 
-  const handleAddGrouping = () => {
+  const handleAddGrouping = useCallback(async () => {
     const flattenDimensions = dimensionNodes
       .map((node) => (node.selectable === true ? node : node.children))
       .flat(1);
@@ -98,21 +79,21 @@ function MasterGrouping() {
     if (addgroupClickCount < maxAddGroup) {
       setAddgroupClickCount(addgroupClickCount + 1);
     }
-    const groupCuts = getCutsData(nextGrouping[0]);
-    console.log(groupCuts);
+    const groupCuts = await getCutsData(nextGrouping[0]);
+
     dispatch({
       type: "addGroupings",
       payload: {
         drillDown: nextGrouping[0],
         selectedCuts: [],
         active: false,
-        // cutsOptions: data.members.map((member) => ({
-        //   label: member.name,
-        //   key: member.key,
-        // })),
+        cutsOptions: groupCuts.members.map((member) => ({
+          label: member.name,
+          key: member.key,
+        })),
       },
     });
-  };
+  });
 
   return (
     <>
@@ -132,6 +113,7 @@ function MasterGrouping() {
                 grouping={grouping}
                 selectedMajorOption={selectedMajorOption}
                 onSetSelectedMajorOption={setSelectedMajorOption}
+                getCutsData={getCutsData}
               />
             </Fragment>
           ))}
@@ -150,7 +132,7 @@ function MasterGrouping() {
   );
 }
 
-export default MasterGrouping;
+export default React.memo(MasterGrouping);
 
 /*
    <label>Grouped by </label>
