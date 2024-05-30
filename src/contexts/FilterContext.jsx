@@ -12,10 +12,8 @@ const initialState = {
 function reducer(state, action) {
   switch (action.type) {
     case "setNodes":
-      // console.log("setNodes", action.payload);
       return { ...state, measureNodes: action.payload };
     case "setMeasure": {
-      // console.log("setMeasure", action.payload);
       return {
         ...state,
         selectedMeasure: action.payload,
@@ -23,40 +21,49 @@ function reducer(state, action) {
       };
     }
     case "setDimensionNodes":
-      // console.log("setDimensionNodes", action.payload);
       return {
         ...state,
         dimensionNodes: action.payload,
       };
-    case "addGroupings":
-      // console.log("addGroupings", action.payload);
-      return {
-        ...state,
-        groupings: [...state.groupings, action.payload],
-      };
-    case "replaceGrouping":
-      // console.log("replaceGrouping", action.payload);
+
+    case "updateGrouping":
       const oldKey = action.payload.oldKey;
       const newGrouping = action.payload.newGrouping;
+      let newGroupings = [];
+      if (
+        state.groupings.find((grouping) => grouping.drillDown.key === oldKey)
+      ) {
+        newGroupings = state.groupings.map((grouping) =>
+          grouping.drillDown.key !== oldKey ? grouping : newGrouping
+        );
+      } else {
+        newGroupings = [...state.groupings, newGrouping];
+      }
 
-      const newGroupings = state.groupings.filter(
-        (grouping) => grouping.drillDown.key !== oldKey
-      );
-
-      newGroupings.push(newGrouping);
       return {
         ...state,
         groupings: newGroupings,
       };
     case "removeGrouping":
-      // console.log("removeGrouping", action.payload);
       return {
         ...state,
         groupings: state.groupings.filter(
           (grouping) => grouping.drillDown.key !== action.payload
         ),
       };
-
+    case "selctedCuts":
+      return {
+        ...state,
+        groupings: state.groupings.map((grouping) => {
+          if (grouping.drillDown.key === action.payload.key) {
+            return {
+              ...grouping,
+              selectedCuts: action.payload.selectedCuts,
+            };
+          }
+          return grouping;
+        }),
+      };
     default:
       return new Error("Unknown action");
   }

@@ -5,11 +5,14 @@ import { useFilter } from "../contexts/FilterContext";
 import { Button } from "primereact/button";
 import { TreeSelect } from "primereact/treeselect";
 import { Tag } from "primereact/tag";
-import { getCutsData } from "../service/data/apiCallers";
 
 const StyledFilters = styled.div`
   display: grid;
   gap: 1em;
+
+  label {
+    padding-bottom: 1em;
+  }
 `;
 const StyledButton = styled.div`
   display: grid;
@@ -17,66 +20,75 @@ const StyledButton = styled.div`
   grid-auto-flow: column;
 `;
 
-const StyledSelectedOption = styled.span`
+const StyledSelectedOption = styled.div`
   background-color: #ccc;
   border-radius: 5px;
   padding: 5px;
-  margin: 0.1em;
+  width: max-content;
 `;
 
-function ChildGrouping({ index, updateGroupingFunction }) {
-  const { groupings, dimensionNodes, dispatch } = useFilter();
-
-  const grouping = groupings[index];
-
+function ChildGrouping({
+  grouping,
+  selectedMajorOption,
+  onSetSelectedMajorOption,
+  getCutsData,
+}) {
   const [selectedDimensionKey, setSelectedDimensionKey] = useState(
     grouping.drillDown.key
   );
-  const [selectedCutsKeys, setSelectedCutsKeys] = useState(
-    grouping.selectedCuts
-  );
+
+  const [selectedCutsKeys, setSelectedCutsKeys] = useState([]);
+  const { groupings, dimensionNodes, dispatch } = useFilter();
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [isEditButtonVisible, setIsEditButtonVisible] = useState(false);
 
   const handleSelectGroupByNode = (e) => {
-    setSelectedCutsKeys(e.value);
+    selectedOptions.push(e.node);
+  };
 
+  const handleSelectDimensionsNode = async (e) => {
+    onSetSelectedMajorOption(e.node);
+    const groupCuts = await getCutsData(e.node);
     dispatch({
-      type: "updateGrouping",
+      type: "replaceGrouping",
       payload: {
         oldKey: grouping.drillDown.key,
         newGrouping: {
-          ...grouping,
-          selectedCuts: e.value,
+          drillDown: e.node,
+          selectedCuts: [],
+          active: false,
+          cutsOptions: groupCuts.members.map((member) => ({
+            label: member.name,
+            key: member.key,
+          })),
         },
       },
     });
   };
 
-  const handleSelectDimensionsNode = async (e) => {
-    updateGroupingFunction(grouping.drillDown.key, e.node);
-  };
-
-  const selectedCutsLabels = grouping.cutsOptions
-    .filter((cut) => Object.keys(selectedCutsKeys).includes(`${cut.key}`))
-    .map((cut) => cut.label);
-
   const handleApplyFilter = () => {
-    dispatch({
-      type: "updateGrouping",
-      payload: {
-        oldKey: grouping.drillDown.key,
-        newGrouping: { ...grouping, active: true },
-      },
-    });
-  };
+    if (selectedMajorOption && selectedOptions.length === 0) {
+      dispatch({
+        type: "setAppliedMajorOption",
+        payload: selectedMajorOption,
+      });
 
+      setIsEditButtonVisible(true);
+    } else if (selectedOptions && selectedOptions.length > 0) {
+      dispatch({
+        type: "setAppliedOptions",
+        payload: selectedOptions,
+      });
+      dispatch({
+        type: "setAppliedMajorOption",
+        payload: selectedMajorOption,
+      });
+      setIsEditButtonVisible(true);
+    }
+  };
   const handleEditFilter = () => {
-    dispatch({
-      type: "updateGrouping",
-      payload: {
-        oldKey: grouping.drillDown.key,
-        newGrouping: { ...grouping, active: false },
-      },
-    });
+    setIsEditButtonVisible(false);
+    setSelectedOptions([]);
   };
 
   const handleDeleteFilter = () => {
@@ -90,9 +102,12 @@ function ChildGrouping({ index, updateGroupingFunction }) {
     setSelectedDimensionKey(e.value);
   };
 
+  // console.log("grouping", grouping);
+  // console.log("dimensionNodes", dimensionNodes);
+  // console.log("newDimensionNodes", newDimensionNodes);
   return (
     <StyledFilters>
-      {!grouping.active ? (
+      {!isEditButtonVisible ? (
         <>
           <TreeSelect
             options={dimensionNodes}
@@ -106,29 +121,26 @@ function ChildGrouping({ index, updateGroupingFunction }) {
           <div className="p-inputgroup">
             <TreeSelect
               options={grouping.cutsOptions}
-              onChange={handleSelectGroupByNode}
+              onChange={(e) => setSelectedCutsKeys(e.value)}
               value={selectedCutsKeys}
               metaKeySelection={false}
               display="chip"
               selectionMode="checkbox"
               filter
               multiple
+              onNodeSelect={handleSelectGroupByNode}
             />
           </div>
         </>
-      ) : (
-        <span>
-          {selectedCutsLabels
-            ? selectedCutsLabels.map((item, i) => (
-                <StyledSelectedOption key={i}>
-                  <Tag unstyled value={item} />
-                </StyledSelectedOption>
-              ))
-            : null}
-        </span>
-      )}
+      ) : selectedOptions ? (
+        selectedOptions.map((item, i) => (
+          <StyledSelectedOption key={i}>
+            <Tag unstyled value={item.label} />
+          </StyledSelectedOption>
+        ))
+      ) : null}
       <StyledButton>
-        {grouping.active ? (
+        {isEditButtonVisible ? (
           <Button label="Edit" severity="info" onClick={handleEditFilter} />
         ) : (
           <Button label="Apply" severity="info" onClick={handleApplyFilter} />
