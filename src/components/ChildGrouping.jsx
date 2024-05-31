@@ -5,7 +5,6 @@ import { useFilter } from "../contexts/FilterContext";
 import { Button } from "primereact/button";
 import { TreeSelect } from "primereact/treeselect";
 import { Tag } from "primereact/tag";
-import { getCutsData } from "../service/data/apiCallers";
 
 const StyledFilters = styled.div`
   display: grid;
@@ -36,9 +35,19 @@ function ChildGrouping({ index, updateGroupingFunction }) {
     grouping.selectedCuts
   );
 
+  const unselectedDimensions = dimensionNodes.filter(
+    (node) =>
+      !groupings
+        .filter(
+          (group) =>
+            group.drillDown.key.split("-")[0] !==
+            grouping.drillDown.key.split("-")[0]
+        )
+        .some((g) => g.drillDown.key.split("-")[0] === node.key.split("-")[0])
+  );
+
   const handleSelectGroupByNode = (e) => {
     setSelectedCutsKeys(e.value);
-
     dispatch({
       type: "updateGrouping",
       payload: {
@@ -95,7 +104,7 @@ function ChildGrouping({ index, updateGroupingFunction }) {
       {!grouping.active ? (
         <>
           <TreeSelect
-            options={dimensionNodes}
+            options={unselectedDimensions}
             onChange={handleDimensionChange}
             value={selectedDimensionKey}
             metaKeySelection={false}

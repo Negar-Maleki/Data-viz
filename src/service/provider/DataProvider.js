@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext } from "react";
-import { getCubes } from "../data/apiCallers";
+import { getCubes } from "../data/client";
 
 const DataContext = createContext();
 

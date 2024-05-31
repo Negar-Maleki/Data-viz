@@ -7,9 +7,10 @@ import FilterBy from "./FilterBy";
 import { TreeSelect } from "primereact/treeselect";
 import { Tag } from "primereact/tag";
 import { ProgressSpinner } from "primereact/progressspinner";
+
 import { useFilter } from "../contexts/FilterContext";
 import { DataContext } from "../service/provider/DataProvider";
-import { getCutsData } from "../service/data/apiCallers";
+import { getCutsData } from "../service/data/client";
 import { buildMeasreNodes, buildNodesArray } from "../helper/nodeProducer";
 
 const StyledFilters = styled.div`

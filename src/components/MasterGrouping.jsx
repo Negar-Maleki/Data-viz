@@ -7,7 +7,6 @@ import { useFilter } from "../contexts/FilterContext";
 
 import ChildGrouping from "./ChildGrouping";
 import { ProgressSpinner } from "primereact/progressspinner";
-import { getCutsData } from "../service/data/apiCallers";
 
 const StyledFilters = styled.div`
   /* display: ${(props) => (props.groupings ? "grid" : "none")};
@@ -28,7 +27,7 @@ const StyledAddGroupButton = styled(Button)`
 `;
 
 function MasterGrouping({ updateGroupingFunction }) {
-  const { selectedMeasure, dimensionNodes, groupings, dispatch } = useFilter();
+  const { selectedMeasure, dimensionNodes, groupings } = useFilter();
   const [addgroupClickCount, setAddgroupClickCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
