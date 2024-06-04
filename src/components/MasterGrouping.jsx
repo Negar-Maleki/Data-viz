@@ -37,6 +37,7 @@ function MasterGrouping({ updateGroupingFunction }) {
     const flattenDimensions = dimensionNodes
       ?.map((node) => (node.selectable === true ? node : node.children))
       .flat(1);
+
     const nextGrouping = flattenDimensions?.filter(
       (node) =>
         !groupings.find(
@@ -44,14 +45,16 @@ function MasterGrouping({ updateGroupingFunction }) {
             grouping.drillDown.key.split("-")[0] === node.key.split("-")[0]
         )
     );
+
     if (addgroupClickCount < maxAddGroup) {
       setAddgroupClickCount(addgroupClickCount + 1);
     }
+
     if (nextGrouping) {
       setIsLoading(true);
-
       updateGroupingFunction(null, nextGrouping[0]);
     }
+
     setIsLoading(false);
   }
 

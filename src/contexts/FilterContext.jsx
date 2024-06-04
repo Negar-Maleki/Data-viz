@@ -7,6 +7,7 @@ const initialState = {
   dimensionNodes: null,
   selectedMeasure: null,
   groupings: [],
+  filters: [],
 };
 
 function reducer(state, action) {
@@ -29,6 +30,7 @@ function reducer(state, action) {
     case "updateGrouping":
       const oldKey = action.payload.oldKey;
       const newGrouping = action.payload.newGrouping;
+
       let newGroupings = [];
       if (
         state.groupings.find((grouping) => grouping.drillDown.key === oldKey)
@@ -51,18 +53,34 @@ function reducer(state, action) {
           (grouping) => grouping.drillDown.key !== action.payload
         ),
       };
-    case "selctedCuts":
+
+    case "updateFilter":
+      const oldFilter = action.payload.oldFilter;
+      const newFilter = action.payload.newFilter;
+
+      let newFilters = [];
+
+      if (
+        oldFilter !== null &&
+        state.filters.find((filter) => filter.key === oldFilter.key)
+      ) {
+        newFilters = state.filters.map((filter) =>
+          filter.key !== oldFilter.key ? filter : newFilter
+        );
+      } else {
+        newFilters = [...state.filters, newFilter];
+      }
+
       return {
         ...state,
-        groupings: state.groupings.map((grouping) => {
-          if (grouping.drillDown.key === action.payload.key) {
-            return {
-              ...grouping,
-              selectedCuts: action.payload.selectedCuts,
-            };
-          }
-          return grouping;
-        }),
+        filters: newFilters,
+      };
+    case "removeFilter":
+      return {
+        ...state,
+        filters: state.filters.filter(
+          (filter) => filter.key !== action.payload
+        ),
       };
     default:
       return new Error("Unknown action");
@@ -71,7 +89,7 @@ function reducer(state, action) {
 
 function FilterProvider({ children }) {
   const [
-    { measureNodes, selectedMeasure, groupings, dimensionNodes },
+    { measureNodes, selectedMeasure, groupings, dimensionNodes, filters },
     dispatch,
   ] = useReducer(reducer, initialState);
 
@@ -82,6 +100,8 @@ function FilterProvider({ children }) {
         selectedMeasure,
         groupings,
         dimensionNodes,
+        filters,
+
         dispatch,
       }}
     >

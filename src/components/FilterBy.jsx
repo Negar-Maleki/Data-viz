@@ -1,9 +1,12 @@
 import styled from "styled-components";
+import { v4 as uuidv4 } from "uuid";
 
+import { useFilter } from "../contexts/FilterContext";
+
+import { ProgressSpinner } from "primereact/progressspinner";
 import { Button } from "primereact/button";
-import { Inplace, InplaceContent, InplaceDisplay } from "primereact/inplace";
+
 import FilterBar from "./FilterBar";
-import { useState } from "react";
 
 const StyledFilter = styled.div`
   display: grid;
@@ -19,35 +22,45 @@ const StyledFilter = styled.div`
   }
 `;
 
-function FilterBy({}) {
-  const [filterCount, setFilterCount] = useState([1]);
+function FilterBy() {
+  const { filters, selectedMeasure, dispatch } = useFilter();
+  const aggregates = selectedMeasure?.more.map((name) => ({
+    name,
+  }));
 
   const handleAddFilter = () => {
-    setFilterCount(filterCount + 1);
+    dispatch({
+      type: "updateFilter",
+      payload: {
+        oldFilter: null,
+        newFilter: {
+          name: { name: aggregates[0].name },
+          active: false,
+          key: uuidv4(),
+          operation: "=",
+          inputValue: 0,
+        },
+      },
+    });
   };
 
   return (
     <StyledFilter>
       <label>Filter by</label>
-      {[...filterCount].map((_, index) => (
-        <Inplace unstyled="true" key={index}>
-          <InplaceDisplay>
-            <Button
-              type="button"
-              label="Add filter"
-              outlined
-              severity="info"
-              icon="pi pi-plus"
-              onClick={handleAddFilter}
-            />
-          </InplaceDisplay>
-          <InplaceContent>
-            <fieldset>
-              <FilterBar />
-            </fieldset>
-          </InplaceContent>
-        </Inplace>
-      ))}
+      {selectedMeasure &&
+        filters.map((filter) => (
+          <FilterBar key={uuidv4()} filter={filter} aggregates={aggregates} />
+        ))}
+
+      <Button
+        type="button"
+        label="Add filter"
+        outlined
+        severity="info"
+        icon="pi pi-plus"
+        onClick={handleAddFilter}
+        disabled={selectedMeasure === null}
+      />
     </StyledFilter>
   );
 }
