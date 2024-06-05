@@ -1,6 +1,6 @@
-const nodesArray = [];
-
 function buildNodesArray(data) {
+  const nodesArray = [];
+
   data?.forEach((item) => {
     const annotation = item.annotations;
     const cubeMeasures = item.measures;
@@ -29,6 +29,7 @@ function buildNodesArray(data) {
         !child.label.includes("Moe")
       );
     });
+
     const measureChildrenLabels = measureChildren.map((obj) => obj.label);
     measureChildren.forEach((obj) => {
       obj.more = measureChildrenLabels;
@@ -66,6 +67,7 @@ function buildNodesArray(data) {
       const suptopicIndex = nodesArray[repeatedArrayIndex].children.findIndex(
         (childNode) => childNode.label === annotation.subtopic
       );
+
       if (suptopicIndex === -1) {
         nodesArray[repeatedArrayIndex].children.push({
           label: annotation.subtopic,

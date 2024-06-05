@@ -29,12 +29,13 @@ const StyledFilters = styled.div`
 function SidebarDisplay() {
   const { selectedMeasure, measureNodes, dispatch } = useFilter();
   const [selectedNodeKey, setSelectedNodeKey] = useState(null);
-
   const data = useContext(DataContext);
 
   useEffect(() => {
-    const nodesArray = buildNodesArray(data);
-    dispatch({ type: "setNodes", payload: nodesArray });
+    if (data) {
+      const nodesArray = buildNodesArray(data);
+      dispatch({ type: "setNodes", payload: nodesArray });
+    }
   }, [data]);
 
   async function updateGroupingFunction(oldKey, grouping) {

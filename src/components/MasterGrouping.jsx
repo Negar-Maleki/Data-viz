@@ -31,7 +31,7 @@ function MasterGrouping({ updateGroupingFunction }) {
   const [addgroupClickCount, setAddgroupClickCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const maxAddGroup = selectedMeasure?.data.dimensions.length;
+  const maxAddGroup = dimensionNodes?.length;
 
   async function handleAddGrouping() {
     const flattenDimensions = dimensionNodes
@@ -88,7 +88,7 @@ function MasterGrouping({ updateGroupingFunction }) {
         severity="info"
         icon="pi pi-plus"
         onClick={handleAddGrouping}
-        disabled={addgroupClickCount >= maxAddGroup - 1 || !selectedMeasure}
+        disabled={addgroupClickCount + 1 >= maxAddGroup || !selectedMeasure}
       />
     </>
   );

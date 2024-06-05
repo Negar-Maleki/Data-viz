@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useFilter } from "../contexts/FilterContext";
 
-import { ProgressSpinner } from "primereact/progressspinner";
 import { Button } from "primereact/button";
 
 import FilterBar from "./FilterBar";

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { LuChevronsUpDown } from "react-icons/lu";
 import { v4 as uuidv4 } from "uuid";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 
 import { useFilter } from "../contexts/FilterContext";
 
@@ -49,7 +49,6 @@ function FilterBar({ filter, aggregates }) {
   ];
 
   const handleAggregate = (e) => {
-    console.log(e.value);
     dispatch({
       type: "updateFilter",
       payload: {

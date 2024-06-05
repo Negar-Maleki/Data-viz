@@ -19,6 +19,7 @@ function reducer(state, action) {
         ...state,
         selectedMeasure: action.payload,
         groupings: [],
+        filters: [],
       };
     }
     case "setDimensionNodes":
