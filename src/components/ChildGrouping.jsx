@@ -24,7 +24,7 @@ const StyledSelectedOption = styled.span`
 `;
 
 function ChildGrouping({ index, updateGroupingFunction }) {
-  const { groupings, dimensionNodes, dispatch } = useFilter();
+  const { groupings, filters, dimensionNodes, dispatch } = useFilter();
 
   const grouping = groupings[index];
 
