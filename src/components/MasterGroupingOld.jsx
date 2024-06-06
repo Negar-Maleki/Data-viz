@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import { Button } from "primereact/button";
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 
 import { useFilter } from "../contexts/FilterContext";
 

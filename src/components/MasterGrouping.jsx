@@ -9,6 +9,12 @@ import ChildGrouping from "./ChildGrouping";
 import { ProgressSpinner } from "primereact/progressspinner";
 
 const StyledFilters = styled.div`
+  /* display: ${(props) => (props.groupings ? "grid" : "none")};
+  background: ${(props) => (props.groupings ? "red" : "transparent")};
+  padding: 1em;
+  border: ${(props) => (props.groupings ? "0.5px solid #33333318" : "none")};
+  border-radius: 5px; */
+
   label {
     padding: 0.5em 0;
   }
@@ -89,3 +95,16 @@ function MasterGrouping({ updateGroupingFunction }) {
 }
 
 export default MasterGrouping;
+
+/*
+   
+        <Inplace unstyled="true">
+          <InplaceDisplay>
+            <Button
+              label="Edit"
+              severity="info"
+              onClick={handleGroupedByFilters}
+            />
+          </InplaceDisplay>
+         
+      */

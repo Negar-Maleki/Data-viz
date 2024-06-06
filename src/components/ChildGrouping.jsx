@@ -5,6 +5,7 @@ import { useFilter } from "../contexts/FilterContext";
 import { Button } from "primereact/button";
 import { TreeSelect } from "primereact/treeselect";
 import { Tag } from "primereact/tag";
+import { getFilteredData } from "../service/data/client";
 
 const StyledFilters = styled.div`
   display: grid;
@@ -24,7 +25,8 @@ const StyledSelectedOption = styled.span`
 `;
 
 function ChildGrouping({ index, updateGroupingFunction }) {
-  const { groupings, filters, dimensionNodes, dispatch } = useFilter();
+  const { groupings, filters, selectedMeasure, dimensionNodes, dispatch } =
+    useFilter();
 
   const grouping = groupings[index];
 

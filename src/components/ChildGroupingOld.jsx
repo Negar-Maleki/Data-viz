@@ -38,7 +38,7 @@ function ChildGrouping({
   );
 
   const [selectedCutsKeys, setSelectedCutsKeys] = useState([]);
-  const { groupings, dimensionNodes, dispatch } = useFilter();
+  const { dimensionNodes, dispatch } = useFilter();
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [isEditButtonVisible, setIsEditButtonVisible] = useState(false);
 
