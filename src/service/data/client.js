@@ -1,4 +1,4 @@
-const BASE_URL = "https://arkansas-api.datausa.io/cubes";
+const BASE_URL = "/cubes";
 
 const getCubes = async () => {
   try {
@@ -46,26 +46,30 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
   const cuts = [];
   const drilldowns = [];
   const filter = [];
-  const measure = `${selectedMeasure.label}`;
-  const order = `[Measures].${[measure]}`;
+  const measure = selectedMeasure.label;
+  const order = `[Measures].[${measure}]`;
   const order_desc = true;
   const nonempty = true;
   const parents = true;
   const sparse = true;
 
   groupings.forEach((grouping) => {
+    const currentCuts = [];
     for (const cutKey in grouping.selectedCuts) {
       if (grouping.selectedCuts.hasOwnProperty(cutKey)) {
-        cuts.push(
-          `[${grouping.drillDown.data.dimensionName}].[${grouping.drillDown.label}].&[${cutKey}]`
+        currentCuts.push(
+          `[${grouping.drillDown.data.dimensionName}].[${grouping.drillDown.data.level}].&[${cutKey}]`
         );
       }
     }
-    if (grouping.drillDown.selectable) {
-      if (grouping.active)
-        drilldowns.push(
-          `[${grouping.drillDown.data.dimensionName}].[${grouping.drillDown.label}]`
-        );
+    if (currentCuts.length > 1) {
+      cuts.push(`{${currentCuts.join(",")}}`);
+    }
+
+    if (grouping.active) {
+      drilldowns.push(
+        `[${grouping.drillDown.data.dimensionName}].[${grouping.drillDown.data.level}]`
+      );
     }
   });
   filters.forEach((f) => {
@@ -80,7 +84,7 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
 
   const params = new URLSearchParams();
   cuts.forEach((cut) => params.append("cut[]", cut));
-  params.append("drilldown[]", "drilldown[]=[Year].[Year]");
+  params.append("drilldown[]", "[Year].[Year]");
   drilldowns.forEach((drilldown) => params.append("drilldown[]", drilldown));
   params.append("measures[]", measure);
   params.append("order", order);
@@ -94,20 +98,18 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
   params.append("parents", parents);
   params.append("sparse", sparse);
 
-  const apiUrl = `${BASE_URL}/${cubeName}?${params.toString()}`;
+  const apiUrl = `${BASE_URL}/${cubeName}/aggregate.jsonrecords?${params.toString()}`;
 
+  // console.log(apiUrl);
   try {
-    const response = await fetch(apiUrl, {
-      method: "GET",
-      mode: "cors", // Ensure CORS is enabled
-    });
+    const response = await fetch(apiUrl);
     if (!response.ok) {
-      throw new Error(`Failed to fetch data: ${response.status}`);
+      throw new Error(`${response.status}`);
     }
     const data = await response.json();
-    console.log("Response:", data);
+    return data;
   } catch (error) {
-    console.error("Error:", error);
+    throw error;
   }
 }
 

@@ -1,5 +1,8 @@
 import styled from "styled-components";
 
+import { useFilter } from "../contexts/FilterContext";
+import Main from "./Main";
+
 const StyledStartPage = styled.div`
   grid-column: 2/-1;
   grid-row: 2;
@@ -7,7 +10,7 @@ const StyledStartPage = styled.div`
   padding: 1em;
   justify-self: center;
   align-self: center;
-  display: grid;
+  display: ${(props) => (props.$active ? "grid" : "none")};
   grid-template-rows: repeat(auto-fill, minmax(20em, auto));
   grid-template-columns: auto;
   gap: 1em;
@@ -30,17 +33,26 @@ const StyledStartPage = styled.div`
 `;
 
 function StartPage() {
-  return (
-    <StyledStartPage>
-      <div>
-        <h2>Welcome to Data viz!</h2>
-        <p>Explore and Analyze Your Data with Ease.</p>
-        <p>Search, filter, and visualize data to gain deeper understanding.</p>
-        <p>Make informed decisions with interactive data exploration.</p>
-      </div>
+  const { groupings } = useFilter();
+  const active = groupings
+    ? groupings?.some((grouping) => grouping.active === true)
+    : false;
 
-      <img src="startingImg.png" alt="starting image" />
-    </StyledStartPage>
+  return (
+    <>
+      <StyledStartPage $active={!active}>
+        <div>
+          <h2>Welcome to Data viz!</h2>
+          <p>Explore and Analyze Your Data with Ease.</p>
+          <p>
+            Search, filter, and visualize data to gain deeper understanding.
+          </p>
+          <p>Make informed decisions with interactive data exploration.</p>
+        </div>
+        <img src="startingImg.png" alt="starting image" />
+      </StyledStartPage>
+      {active ? <Main /> : null}
+    </>
   );
 }
 

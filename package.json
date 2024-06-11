@@ -43,5 +43,6 @@
   },
   "devDependencies": {
     "jest": "^27.5.1"
-  }
+  },
+  "proxy": "https://arkansas-api.datausa.io/"
 }
