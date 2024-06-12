@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
+import * as dfd from "danfojs";
+
 import { Chart } from "primereact/chart";
 
 export default function LineChart({ data }) {
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
-  console.log(data);
+  // console.log(data);
 
+  // const df = new dfd.DataFrame(data);
+  // console.log(df);
   useEffect(() => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue("--text-color");

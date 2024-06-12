@@ -92,7 +92,6 @@ function ChildGrouping({ index, updateGroupingFunction }) {
     dispatch({
       type: "removeGrouping",
       payload: grouping.drillDown.key,
-      // newGrouping: { ...grouping, active: true },
     });
   };
 

@@ -8,6 +8,7 @@ import { getFilteredData } from "../service/data/client";
 import HorizontalBar from "./HorizontalBar";
 import LineChart from "./LineChart";
 import "primeicons/primeicons.css";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 const StyledMain = styled.div`
   grid-column: 2/-1;
@@ -53,25 +54,42 @@ function Main() {
     const getData = async () => {
       try {
         setLoading(true);
-        const data = await getFilteredData(groupings, filters, selectedMeasure);
-        setData(data.data);
+        const newData = await getFilteredData(
+          groupings,
+          filters,
+          selectedMeasure
+        );
+
+        setData(newData.data);
       } catch (error) {
         setError(error);
       }
     };
 
     getData();
+
     setLoading(false);
   }, [groupings, filters, selectedMeasure]);
 
-  if (error?.message === "500" && loading === false) {
+  if (loading || data.length === 0) {
+    return (
+      <StyledError>
+        <ProgressSpinner
+          strokeWidth="8"
+          fill="var(--surface-ground)"
+          animationDuration=".5s"
+        />
+      </StyledError>
+    );
+  }
+  if (error?.message === "500") {
     return (
       <StyledError>
         <i className="pi pi-globe"></i>
         <span>Network error</span>
       </StyledError>
     );
-  } else if (error && loading === false) {
+  } else if (error) {
     return (
       <StyledError>
         <i className="pi pi-exclamation-circle"></i>
