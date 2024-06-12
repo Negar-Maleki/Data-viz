@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
-import * as dfd from "danfojs";
 
 import { Chart } from "primereact/chart";
+import { useFilter } from "../contexts/FilterContext";
 
 export default function LineChart({ data }) {
+  const { selectedMeasure } = useFilter();
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
-  // console.log(data);
 
-  // const df = new dfd.DataFrame(data);
-  // console.log(df);
+  const years = data.map((d) => d.Year);
+
+  const uniqueYears = [...new Set(years)];
+
+  const sortedUniqueYears = uniqueYears.sort((a, b) => a - b);
+
   useEffect(() => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue("--text-color");
@@ -17,21 +21,14 @@ export default function LineChart({ data }) {
       "--text-color-secondary"
     );
     const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
-    const data = {
-      labels: ["January", "February", "March", "April", "May", "June", "July"],
+    const chartData = {
+      labels: sortedUniqueYears,
       datasets: [
         {
           label: "First Dataset",
-          data: [65, 59, 80, 81, 56, 55, 40],
+          data: data.map((d) => d[selectedMeasure.label]),
           fill: false,
           borderColor: documentStyle.getPropertyValue("--cyan-600"),
-          tension: 0.4,
-        },
-        {
-          label: "Second Dataset",
-          data: [28, 48, 40, 19, 86, 27, 90],
-          fill: false,
-          borderColor: documentStyle.getPropertyValue("--cyan-800"),
           tension: 0.4,
         },
       ],
@@ -66,7 +63,7 @@ export default function LineChart({ data }) {
       },
     };
 
-    setChartData(data);
+    setChartData(chartData);
     setChartOptions(options);
   }, []);
 

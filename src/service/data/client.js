@@ -98,7 +98,7 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
   params.append("sparse", sparse);
 
   const apiUrl = `${BASE_URL}/${cubeName}/aggregate.jsonrecords?${params.toString()}`;
-  console.log(apiUrl);
+
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
