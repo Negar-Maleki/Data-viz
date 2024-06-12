@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import _ from "lodash";
 import { useEffect, useState } from "react";
 import { useFilter } from "../contexts/FilterContext";
 
@@ -46,30 +47,31 @@ function Main() {
   const { filters, selectedMeasure, groupings } = useFilter();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     const getData = async () => {
       try {
-        setLoading(false);
+        setLoading(true);
         const data = await getFilteredData(groupings, filters, selectedMeasure);
-        return data;
+        setData(data.data);
       } catch (error) {
         setError(error);
       }
     };
 
     getData();
-    setLoading(true);
+    setLoading(false);
   }, [groupings, filters, selectedMeasure]);
 
-  if (error?.message === "500" && loading === true) {
+  if (error?.message === "500" && loading === false) {
     return (
       <StyledError>
         <i className="pi pi-globe"></i>
         <span>Network error</span>
       </StyledError>
     );
-  } else if (error && loading === true) {
+  } else if (error && loading === false) {
     return (
       <StyledError>
         <i className="pi pi-exclamation-circle"></i>
@@ -77,15 +79,11 @@ function Main() {
       </StyledError>
     );
   }
-  console.log(loading);
+
   return (
     <StyledMain>
-      {!error && loading === false && (
-        <>
-          <HorizontalBar />
-          <LineChart />
-        </>
-      )}
+      <HorizontalBar />
+      <LineChart data={data} />
     </StyledMain>
   );
 }

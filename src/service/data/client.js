@@ -54,6 +54,7 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
   const sparse = true;
 
   groupings.forEach((grouping) => {
+    console.log(grouping);
     const currentCuts = [];
     for (const cutKey in grouping.selectedCuts) {
       if (grouping.selectedCuts.hasOwnProperty(cutKey)) {
@@ -67,9 +68,7 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
     }
 
     if (grouping.active) {
-      drilldowns.push(
-        `[${grouping.drillDown.data.dimensionName}].[${grouping.drillDown.data.level}]`
-      );
+      drilldowns.push(`${grouping.drillDown.data.fullName}`);
     }
   });
   filters.forEach((f) => {
@@ -100,7 +99,6 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
 
   const apiUrl = `${BASE_URL}/${cubeName}/aggregate.jsonrecords?${params.toString()}`;
 
-  // console.log(apiUrl);
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {

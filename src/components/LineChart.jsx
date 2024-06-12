@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Chart } from "primereact/chart";
 
-export default function LineChart() {
+export default function LineChart({ data }) {
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
+  console.log(data);
 
   useEffect(() => {
     const documentStyle = getComputedStyle(document.documentElement);

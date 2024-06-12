@@ -11,7 +11,10 @@ function buildNodesArray(data) {
         cubeName: item.name,
         hierarchies: dimension.hierarchies.map((hierarchy) => ({
           name: hierarchy.name,
-          levels: hierarchy.levels.map((level) => ({ name: level.name })),
+          levels: hierarchy.levels.map((level) => ({
+            name: level.name,
+            fullName: level.full_name,
+          })),
         })),
       })),
     };
@@ -122,6 +125,7 @@ function buildMeasreNodes(e) {
               hierarchyName: dim.hierarchies[0].name,
               cubeName: dim.cubeName,
               level: dim.hierarchies[0].levels[1].name,
+              fullName: dim.hierarchies[0].levels[1].fullName,
             },
           };
         } else {
@@ -140,6 +144,7 @@ function buildMeasreNodes(e) {
                   hierarchyName: dim.hierarchies[0].name,
                   cubeName: dim.cubeName,
                   level: level.name,
+                  fullName: level.fullName,
                 },
               })),
           };
@@ -158,6 +163,7 @@ function buildMeasreNodes(e) {
               hierarchyName: hier.name,
               cubeName: dim.cubeName,
               level: hier.name,
+              fullName: hier.levels[1].fullName,
             },
             children: hier.levels
               .filter(
@@ -170,6 +176,7 @@ function buildMeasreNodes(e) {
                   hierarchyName: hier.name,
                   cubeName: dim.cubeName,
                   level: level.name,
+                  fullName: level.fullName,
                 },
                 key: `${i}-${j}-${k}`,
               })),
