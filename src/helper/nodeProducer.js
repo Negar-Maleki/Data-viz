@@ -2,6 +2,7 @@ function buildNodesArray(data) {
   const nodesArray = [];
 
   data?.forEach((item) => {
+    if (item.name.endsWith("_1")) return null;
     const annotation = item.annotations;
     const cubeMeasures = item.measures;
     const cubeDimensions = item.dimensions;
@@ -23,6 +24,13 @@ function buildNodesArray(data) {
       name: item.name,
       label: m.name,
       data: childData,
+
+      aggregationMethod:
+        m.annotations.aggregation_method &&
+        m.annotations.aggregation_method !== "NONE"
+          ? m.annotations.aggregation_method
+          : m.aggregator,
+      preAggregationMethod: m.annotations.pre_aggregation_method,
       more: [],
     }));
     measureChildren = measureChildren.filter((child) => {
@@ -106,7 +114,7 @@ function buildNodesArray(data) {
       node.children = node.children[0].children;
     }
   });
-
+  console.log(nodesArray);
   return nodesArray;
 }
 
@@ -199,6 +207,7 @@ function buildMeasreNodes(e) {
     }
     return 0;
   });
+
   return dimensionsNodes;
 }
 

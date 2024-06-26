@@ -10,8 +10,11 @@ const StyledStartPage = styled.div`
   padding: 1em;
   justify-self: center;
   align-self: center;
+
   display: ${(props) => (props.$active ? "grid" : "none")};
+
   grid-template-rows: repeat(auto-fill, minmax(20em, auto));
+
   grid-template-columns: auto;
   gap: 1em;
 
@@ -51,6 +54,7 @@ function StartPage() {
         </div>
         <img src="startingImg.png" alt="starting image" />
       </StyledStartPage>
+
       {active ? <Main /> : null}
     </>
   );

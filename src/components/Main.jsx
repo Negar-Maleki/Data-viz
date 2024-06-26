@@ -5,20 +5,28 @@ import { useFilter } from "../contexts/FilterContext";
 
 import { getFilteredData } from "../service/data/client";
 
-import HorizontalBar from "./HorizontalBar";
-import LineChart from "./LineChart";
 import "primeicons/primeicons.css";
 import { ProgressSpinner } from "primereact/progressspinner";
+import HorizontalBar from "./HorizontalBar";
+import LineChart from "./LineChart";
+
+import LineChartNew from "./LineChartNew";
 
 const StyledMain = styled.div`
   grid-column: 2/-1;
   grid-row: 2;
 
+  margin: 1em 0 1em 1em;
+  padding: 0;
+  padding-bottom: 2em;
+  height: 100%;
+
   display: grid;
-  grid-template-rows: repeat(auto-fit, minmax(10em, auto));
-  grid-template-columns: auto;
-  gap: 1em;
-  padding: 1em;
+  grid-template-rows: repeat(auto-fill, minmax(30em, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(30em, 1fr));
+  overflow-x: hidden;
+
+  gap: 3em;
 
   :last-child:nth-child(odd) {
     grid-column: 1/-1;
@@ -93,15 +101,16 @@ function Main() {
     return (
       <StyledError>
         <i className="pi pi-exclamation-circle"></i>
-        <span>empty data set</span>
+        <span>Empty data set</span>
       </StyledError>
     );
   }
 
   return (
     <StyledMain>
-      <HorizontalBar />
-      <LineChart data={data} />
+      <LineChartNew data1={data} />
+      <LineChartNew data1={data} />
+      <LineChartNew data1={data} />
     </StyledMain>
   );
 }

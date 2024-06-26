@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Chart } from "primereact/chart";
 
-const StyledCharts = styled.div``;
+const StyledCharts = styled.div`
+  width: 100%;
+  height: 100%;
+`;
 
 function HorizontalBar() {
   const [chartData, setChartData] = useState({});
