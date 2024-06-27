@@ -15,6 +15,7 @@ function buildNodesArray(data) {
           levels: hierarchy.levels.map((level) => ({
             name: level.name,
             fullName: level.full_name,
+            caption: level.caption,
           })),
         })),
       })),
@@ -114,7 +115,7 @@ function buildNodesArray(data) {
       node.children = node.children[0].children;
     }
   });
-  console.log(nodesArray);
+
   return nodesArray;
 }
 
@@ -172,6 +173,7 @@ function buildMeasreNodes(e) {
               cubeName: dim.cubeName,
               level: hier.name,
               fullName: hier.levels[1].fullName,
+              caption: hier.levels[1].caption,
             },
             children: hier.levels
               .filter(

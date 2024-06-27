@@ -9,8 +9,9 @@ import "primeicons/primeicons.css";
 import { ProgressSpinner } from "primereact/progressspinner";
 import HorizontalBar from "./HorizontalBar";
 import LineChart from "./LineChart";
-
+import { InputSwitch } from "primereact/inputswitch";
 import LineChartNew from "./LineChartNew";
+import TreeMap from "./TreeMap";
 
 const StyledMain = styled.div`
   grid-column: 2/-1;
@@ -52,11 +53,17 @@ const StyledError = styled.div`
   }
 `;
 
+const StyledInputSwitch = styled(InputSwitch)`
+  grid-column: 2/-1;
+  grid-row: 2;
+`;
+
 function Main() {
   const { filters, selectedMeasure, groupings } = useFilter();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -107,11 +114,15 @@ function Main() {
   }
 
   return (
-    <StyledMain>
-      <LineChartNew data1={data} />
-      <LineChartNew data1={data} />
-      <LineChartNew data1={data} />
-    </StyledMain>
+    <>
+      <StyledInputSwitch className="card flex justify-content-center">
+        <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)} />
+      </StyledInputSwitch>
+      <StyledMain>
+        {/* <LineChartNew chartData={data} /> */}
+        <TreeMap chartData={data} />
+      </StyledMain>
+    </>
   );
 }
 

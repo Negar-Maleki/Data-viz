@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { useFilter } from "../contexts/FilterContext";
 import styled from "styled-components";
 import { ResponsiveLine } from "@nivo/line";
 import * as d3 from "d3";
+import { Dialog } from "primereact/dialog";
+
 import { financialStrings } from "../constants/terms";
 const StyledCharts = styled.div`
   width: 100%;
@@ -11,15 +13,16 @@ const StyledCharts = styled.div`
   font-size: 1em;
 `;
 
-export default function LineChartNew({ data1 }) {
+export default function LineChartNew({ chartData }) {
   const { selectedMeasure, groupings } = useFilter();
-  console.log(data1);
+  const [showModal, setShowModal] = useState(false);
+
   if (!Array.isArray(groupings) || groupings.length === 0) {
     console.error("groupings is not defined or empty");
     return;
   }
-  console.log(groupings);
-  if (!Array.isArray(data1) || data1.length === 0) {
+
+  if (!Array.isArray(chartData) || chartData.length === 0) {
     console.error("data is not defined or empty");
     return;
   }
@@ -51,10 +54,11 @@ export default function LineChartNew({ data1 }) {
   const formatYear = () => {
     return "year";
   };
-  console.log(groupings.some((g) => g.drillDown.label === "Age"));
-  const transformData = (data, key) => {
-    const groupedData = data.reduce((result, item) => {
-      const series = item[key];
+
+  const transformData = (group) => {
+    const groupedData = group.reduce((result, item) => {
+      const series = item[groupings[0].caption]; //any need to know the which elemet of groupings should pass index here to get the caption
+
       if (!result[series]) {
         result[series] = [];
       }
@@ -65,6 +69,7 @@ export default function LineChartNew({ data1 }) {
       });
       return result;
     }, {});
+
     Object.keys(groupedData).forEach((series) => {
       groupedData[series].sort((a, b) => a.x - b.x);
     });
@@ -74,8 +79,8 @@ export default function LineChartNew({ data1 }) {
       data: groupedData[series],
     }));
   };
-  const groupedData = transformData(data1, levelName);
-
+  const groupedData = transformData(chartData, levelName);
+  console.log("groupedData", groupedData);
   const averageRecordsCount = Object.keys(groupedData).map((groupKey) => {
     const records = groupedData[groupKey];
     const average = records.data.reduce(
@@ -89,62 +94,126 @@ export default function LineChartNew({ data1 }) {
   const sortedData = averageRecordsCount.sort((a, b) => b.average - a.average);
 
   const topTenData = sortedData.slice(0, 10).map((data) => data.records);
-
+  const handleChartClick = () => {
+    setShowModal(true);
+  };
   return (
     <StyledCharts>
-      <ResponsiveLine
-        data={groupedData.length > 10 ? topTenData : groupedData}
-        margin={{ top: 50, right: 100, bottom: 50, left: 90 }}
-        xScale={{ type: "point" }}
-        yScale={{
-          type: "linear",
-          min: "auto",
-          max: "auto",
-          stacked: false,
-          reverse: false,
-        }}
-        enableSlices="x"
-        yFormat={
-          groupings.some((g) => g.drillDown.label === "Age")
-            ? (value) => formatYear(value)
-            : (value) => formatNumber(value)
-        }
-        enablePoints={false}
-        axisTop={null}
-        axisRight={null}
-        curve="natural"
-        axisBottom={{
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: "transportation",
-          legendOffset: 40,
-          legendPosition: "middle",
-          truncateTickAt: 0,
-        }}
-        theme={{
-          text: { fontSize: ".8em" },
-          axis: { legend: { text: { fontSize: "1em" } } },
-        }}
-        axisLeft={{
-          tickSize: 5,
-          tickPadding: 5,
-          tickRotation: 0,
-          legend: selectedMeasure.label,
-          legendOffset: -70,
-          legendPosition: "middle",
-          truncateTickAt: 0,
-          format: (value) => formatNumber(value),
-        }}
-        pointSize={10}
-        pointColor={{ theme: "background" }}
-        pointBorderWidth={2}
-        pointBorderColor={{ from: "serieColor" }}
-        pointLabel="data.yFormatted"
-        pointLabelYOffset={-12}
-        enableTouchCrosshair={true}
-        useMesh={true}
-      />
+      <div onClick={handleChartClick}>
+        <ResponsiveLine
+          data={groupedData.length > 10 ? topTenData : groupedData}
+          margin={{ top: 50, right: 100, bottom: 50, left: 90 }}
+          xScale={{ type: "point" }}
+          yScale={{
+            type: "linear",
+            min: "auto",
+            max: "auto",
+            stacked: false,
+            reverse: false,
+          }}
+          enableSlices="x"
+          yFormat={
+            groupings.some((g) => g.drillDown.label === "Age")
+              ? (value) => formatYear(value)
+              : (value) => formatNumber(value)
+          }
+          enablePoints={false}
+          axisTop={null}
+          axisRight={null}
+          curve="natural"
+          axisBottom={{
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: "transportation",
+            legendOffset: 40,
+            legendPosition: "middle",
+            truncateTickAt: 0,
+          }}
+          theme={{
+            text: { fontSize: ".8em" },
+            axis: { legend: { text: { fontSize: "1em" } } },
+          }}
+          axisLeft={{
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: selectedMeasure.label,
+            legendOffset: -70,
+            legendPosition: "middle",
+            truncateTickAt: 0,
+            format: (value) => formatNumber(value),
+          }}
+          pointSize={10}
+          pointColor={{ theme: "background" }}
+          pointBorderWidth={2}
+          pointBorderColor={{ from: "serieColor" }}
+          pointLabel="data.yFormatted"
+          pointLabelYOffset={-12}
+          enableTouchCrosshair={true}
+          useMesh={true}
+        />
+      </div>
+      <Dialog
+        header="Line Chart"
+        visible={showModal}
+        style={{ width: "80vw", height: "80vh" }}
+        onHide={() => setShowModal(false)}
+      >
+        <ResponsiveLine
+          data={groupedData.length > 10 ? topTenData : groupedData}
+          margin={{ top: 50, right: 100, bottom: 50, left: 90 }}
+          xScale={{ type: "point" }}
+          yScale={{
+            type: "linear",
+            min: "auto",
+            max: "auto",
+            stacked: false,
+            reverse: false,
+          }}
+          enableSlices="x"
+          yFormat={
+            groupings.some((g) => g.drillDown.label === "Age")
+              ? (value) => formatYear(value)
+              : (value) => formatNumber(value)
+          }
+          enablePoints={false}
+          axisTop={null}
+          axisRight={null}
+          curve="natural"
+          axisBottom={{
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: "transportation",
+            legendOffset: 40,
+            legendPosition: "middle",
+            truncateTickAt: 0,
+          }}
+          theme={{
+            text: { fontSize: ".8em" },
+            axis: { legend: { text: { fontSize: "1em" } } },
+          }}
+          axisLeft={{
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: selectedMeasure.label,
+            legendOffset: -70,
+            legendPosition: "middle",
+            truncateTickAt: 0,
+            format: (value) => formatNumber(value),
+          }}
+          pointSize={10}
+          pointColor={{ theme: "background" }}
+          pointBorderWidth={2}
+          pointBorderColor={{ from: "serieColor" }}
+          pointLabel="data.yFormatted"
+          pointLabelYOffset={-12}
+          enableTouchCrosshair={true}
+          useMesh={true}
+        />
+      </Dialog>
     </StyledCharts>
   );
 }

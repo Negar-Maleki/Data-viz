@@ -34,18 +34,21 @@ function SidebarDisplay() {
   useEffect(() => {
     if (data) {
       const nodesArray = buildNodesArray(data);
+
       dispatch({ type: "setNodes", payload: nodesArray });
     }
   }, [data]);
 
   async function updateGroupingFunction(oldKey, grouping) {
     const groupCuts = await getCutsData(grouping);
+
     dispatch({
       type: "updateGrouping",
       payload: {
         oldKey: oldKey,
         newGrouping: {
           drillDown: grouping,
+          caption: groupCuts.caption,
           selectedCuts: [],
           active: false,
           cutsOptions: groupCuts.members.map((member) => ({
@@ -59,6 +62,7 @@ function SidebarDisplay() {
 
   const setSelectedMeasure = async (e) => {
     const dimensionsNodes = buildMeasreNodes(e);
+
     dispatch({ type: "setMeasure", payload: e.node });
     dispatch({ type: "setDimensionNodes", payload: dimensionsNodes });
 
