@@ -16,6 +16,7 @@ Data Disclaimer: The data presented in this application is sourced from Data USA
 - [View Various Charts](#View-Various-Charts)
 - [Filter Grouping Cuts](#Filter-Grouping-Cuts)
 - [Filter Data by Measures](#Filter-Data-by-Measures)
+- [Table View](#Table-View)
 - [Maximized Chart View](#Maximized-Chart-View)
 
 ### Main User Interface
@@ -48,7 +49,12 @@ The "Filter Grouping Cuts" section provides additional refinement. You can furth
 ![Filter Data](./public/screenshots/6.JPG)
 This option offers another way to refine your analysis. You can filter the data based on the values of other measures, potentially highlighting specific data points or trends based on additional criteria.
 
+### Table View
+
+Data can viewed in a tabular format and can be downloaded as CSV file.
+![Table View](./public/screenshots/7.JPG)
+
 ### Maximized Chart View
 
 Each chart may be viewed in a maximized window for a clearer picture.
-![Maximized Chart View](./public/screenshots/7.JPG)
+![Maximized Chart View](./public/screenshots/8.JPG)
