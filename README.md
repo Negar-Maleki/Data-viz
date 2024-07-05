@@ -10,13 +10,13 @@ Data Disclaimer: The data presented in this application is sourced from Data USA
 
 # APP User Manual
 
-- [Main User Interface](#Main_User_Interface)
-- [Select Measure of interest](#Select_Measure_of_interest)
-- [Select Groupings Variables](#Select_Groupings_Variables)
-- [View Various Charts](#View_Various_Charts)
-- [Filter Grouping Cuts](#Filter_Grouping_Cuts)
-- [Filter Data by Measures](#Filter_Data_by_Measures)
-- [Maximized Chart View](#Maximized_Chart_View)
+- [Main User Interface](#Main-User-Interface)
+- [Select Measure of interest](#Select-Measure-of-interest)
+- [Select Groupings Variables](#Select-Groupings-Variables)
+- [View Various Charts](#View-Various-Charts)
+- [Filter Grouping Cuts](#Filter-Grouping-Cuts)
+- [Filter Data by Measures](#Filter-Data-by-Measures)
+- [Maximized Chart View](#Maximized-Chart-View)
 
 ### Main User Interface
 
