@@ -1,70 +1,46 @@
-# Getting Started with Create React App
+# DataViz App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This application retrieves data from the Data USA API and presents it in a user-friendly format. Data visualizations include charts and tables, allowing users to explore the information in their preferred format. Additionally, users can filter and stratify the data to focus on specific areas of interest.
 
-## Available Scripts
+# Copyright
 
-In the project directory, you can run:
+Data Disclaimer: The data presented in this application is sourced from Data USA and remains their intellectual property. For information on data usage and attribution, please refer to Data USA's terms of service.
 
-### `npm start`
+© 2024 Byteous. Developed by Negar Maleki with supervision from Payam Alexander. This application is free to use.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# APP User Manual
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Main User Interface
 
-### `npm test`
+The main interface allows users to customize their data exploration experience. They can choose how to group data (by clicking the buttons at the top) and filter it using the dropdown menus on the left.
+![Main User Interface](./public/screenshots/1.JPG)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Select Measure of interest
 
-### `npm run build`
+![Select Measure of interest](./public/screenshots/2.JPG)
+A dropdown menu helps you focus your exploration on a particular aspect of the data. A powerful search bar lets you quickly find the outcomes you're interested in, streamlining your analysis.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Select Groupings Variables
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+![Select Groupings Variables](./public/screenshots/3.JPG)
+This option lets you segment the data by one or more variables. This allows you to compare the measure of interest across different categories within your data, revealing trends or patterns.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### View Various Charts
 
-### `npm run eject`
+![View Various Charts](./public/screenshots/4.JPG)
+Based on your chosen measure and groupings, the application automatically generates various charts to visually represent the data. You can download these charts for further analysis or view them maximized for a clearer picture.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Filter Grouping Cuts
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+![Filter Grouping Cuts](./public/screenshots/5.JPG)
+The "Filter Grouping Cuts" section provides additional refinement. You can further narrow down the data within each grouping by selecting specific subsets. This allows you to zoom in on specific areas of interest within your chosen groups.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Filter Data by Measures
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+![Filter Data](./public/screenshots/6.JPG)
+This option offers another way to refine your analysis. You can filter the data based on the values of other measures, potentially highlighting specific data points or trends based on additional criteria.
 
-## Learn More
+### Maximized Chart View
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Each chart may be viewed in a maximized window for a clearer picture.
+![Maximized Chart View](./public/screenshots/7.JPG)

@@ -10,9 +10,11 @@ const StyledStartPage = styled.div`
   padding: 1em;
   justify-self: center;
   align-self: center;
+  max-width: 95%;
 
+  //display different layout based on the groupings activity which is defines in the context when the user clicks on the apply button.
   display: ${(props) => (props.$active ? "grid" : "none")};
-
+  align-items: center;
   grid-template-rows: repeat(auto-fill, minmax(20em, auto));
 
   grid-template-columns: auto;
@@ -25,18 +27,22 @@ const StyledStartPage = styled.div`
     align-self: center;
   }
   img {
-    max-height: 30em;
+    /* max-height: 50%; */
+    max-width: 70%;
     box-shadow: 2px 2px 5px 2px #b0afaf;
     border-radius: 5px;
     justify-self: center;
   }
+
   @media screen and (min-width: 1200px) {
     grid-template-columns: 1fr 1fr;
   }
 `;
-
+//starting page when no item is selected
 function StartPage() {
   const { groupings } = useFilter();
+
+  //check if any grouping is active(if the user clicked on apply button) if yes then show the main page which contains the charts and tables
   const active = groupings
     ? groupings?.some((grouping) => grouping.active === true)
     : false;

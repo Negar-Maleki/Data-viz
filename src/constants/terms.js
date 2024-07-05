@@ -1,3 +1,4 @@
+// Array of strings that are related to financial terms
 export const financialStrings = [
   "Wage",
   "Salary",
@@ -9,4 +10,5 @@ export const financialStrings = [
   "Payroll",
 ];
 
-export const timeStrings = [];
+//get the number of dimensions that the user can group by
+export const maxAddGroup = 2;

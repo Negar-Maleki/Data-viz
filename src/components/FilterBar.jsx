@@ -38,9 +38,11 @@ const StyledButton = styled.div`
   grid-auto-flow: column;
 `;
 function FilterBar({ filter, aggregates }) {
+  // Get the dispatch function from the FilterContext
   const { dispatch } = useFilter();
 
-  const filterByOptions = [
+  // The operationOptions array contains the filter options that the user can select from the dropdown
+  const operationOptions = [
     { label: "Equal to", value: "=" },
     { label: "Greater than", value: ">" },
     { label: "Less than", value: "<" },
@@ -48,6 +50,7 @@ function FilterBar({ filter, aggregates }) {
     { label: "Less than or equal to", value: "<=" },
   ];
 
+  // The handleAggregate function is called when the user selects an aggregate from the dropdown. It dispatches an action to update the filter state with the new aggregate value.
   const handleAggregate = (e) => {
     dispatch({
       type: "updateFilter",
@@ -58,6 +61,7 @@ function FilterBar({ filter, aggregates }) {
     });
   };
 
+  // The handleOperation function is called when the user selects a filter operation from the dropdown. It dispatches an action to update the filter state with the new operation value.
   const handleOperation = (e) => {
     dispatch({
       type: "updateFilter",
@@ -68,6 +72,7 @@ function FilterBar({ filter, aggregates }) {
     });
   };
 
+  // The handleInputValue function is called when the user enters a value in the input field. It dispatches an action to update the filter state with the new input value.
   const handleInputValue = (e) => {
     dispatch({
       type: "updateFilter",
@@ -78,6 +83,7 @@ function FilterBar({ filter, aggregates }) {
     });
   };
 
+  // The handleApplyFilter function is called when the user clicks the Apply button. It dispatches an action to update the filter state with the active status set to true and api call happens to display charts and tables based on the selected filters.
   const handleApplyFilter = () => {
     dispatch({
       type: "updateFilter",
@@ -88,6 +94,7 @@ function FilterBar({ filter, aggregates }) {
     });
   };
 
+  // The handleEditFilter function is called when the user clicks the Edit button. It dispatches an action to update the filter state with the active status set to false.
   const handleEditFilter = () => {
     dispatch({
       type: "updateFilter",
@@ -98,6 +105,7 @@ function FilterBar({ filter, aggregates }) {
     });
   };
 
+  // The handleDeleteFilter function is called when the user clicks the Delete button. It dispatches an action to remove the filter from the filter state.
   const handleDeleteFilter = () => {
     dispatch({
       type: "removeFilter",
@@ -108,6 +116,7 @@ function FilterBar({ filter, aggregates }) {
   return (
     <StyledFilter>
       <Fragment>
+        {/* chacking if the filter is not active dispaly the option menus */}
         {!filter.active ? (
           <>
             <Dropdown
@@ -122,14 +131,14 @@ function FilterBar({ filter, aggregates }) {
               <Dropdown
                 value={filter.operation}
                 onChange={handleOperation}
-                options={filterByOptions}
-                placeholder={filterByOptions[0].label}
+                options={operationOptions}
+                placeholder={operationOptions[0].label}
                 dropdownIcon={<LuChevronsUpDown />}
               />
 
               <InputNumber
-                decrementButtonClassName="p-button-info"
-                incrementButtonClassName="p-button-info"
+                decrementButtonClassName="p-button-primary"
+                incrementButtonClassName="p-button-primary"
                 showButtons
                 value={filter.inputValue}
                 onValueChange={handleInputValue}
@@ -138,6 +147,7 @@ function FilterBar({ filter, aggregates }) {
           </>
         ) : (
           <StyledSelectedOption>
+            {/* Tag displays what user selected in filter by*/}
             <Tag
               unstyled
               value={`${filter.name.name} ${filter.operation} ${filter.inputValue}`}
@@ -145,10 +155,19 @@ function FilterBar({ filter, aggregates }) {
           </StyledSelectedOption>
         )}
         <StyledButton>
+          {/* Check if the filter active display edit and delete buttons */}
           {filter.active ? (
-            <Button label="Edit" severity="info" onClick={handleEditFilter} />
+            <Button
+              label="Edit"
+              severity="primary"
+              onClick={handleEditFilter}
+            />
           ) : (
-            <Button label="Apply" severity="info" onClick={handleApplyFilter} />
+            <Button
+              label="Apply"
+              severity="primary"
+              onClick={handleApplyFilter}
+            />
           )}
           <Button
             label="Delete"

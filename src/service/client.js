@@ -1,5 +1,7 @@
+// to prevent CORS error, using a proxy server to fetch data from the API. The Proxy defined in package.json
 const BASE_URL = "/cubes";
 
+//API call to get the list of cubes
 const getCubes = async () => {
   try {
     const res = await fetch(BASE_URL);
@@ -14,7 +16,9 @@ const getCubes = async () => {
   }
 };
 
+//API call to get the list of cuts for a specific grouping
 async function getCutsData(grouping) {
+  // Extract the cube, dimension, hierarchy, and level names from the grouping object
   const cubeName = grouping.data.cubeName;
   const dimensionName = grouping.data.dimensionName;
   const hierarchyName = grouping.data.hierarchyName;
@@ -22,6 +26,7 @@ async function getCutsData(grouping) {
 
   async function getCutsDataApi() {
     try {
+      // Fetch the data from the API based on the cube, dimension, hierarchy, and level names
       const res = await fetch(
         `${BASE_URL}/${cubeName}/dimensions/${dimensionName}/hierarchies/${hierarchyName}/levels/${levelName}/members?children=false`
       );
@@ -42,7 +47,9 @@ async function getCutsData(grouping) {
   return null;
 }
 
+//API call to get the filtered data for the visualization based on the options selected by the user.
 async function getFilteredData(groupings, filters, selectedMeasure) {
+  // Extract the cube name, cuts, drilldowns, filters,and measure from the groupings, filters, and selectedMeasure objects. order, order_desc, nonempty, parents, and sparse are set to default values.
   const cubeName = groupings[0].drillDown.data.cubeName;
   const cuts = [];
   const drilldowns = [];
@@ -54,6 +61,7 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
   const parents = true;
   const sparse = true;
 
+  // Loop through the groupings arrays to extract the cuts and  drilldowns to create the URL parameters based on the selected groupings by considering the active status of the groupings and filters.
   groupings.forEach((grouping) => {
     const currentCuts = [];
     for (const cutKey in grouping.selectedCuts) {
@@ -63,14 +71,17 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
         );
       }
     }
-    if (currentCuts.length > 1) {
+    // If the currentCuts array has more than one element, the cuts array will push the cuts in the format of[{cut1,cut2,...}].
+    if (currentCuts.length > 0) {
       cuts.push(`{${currentCuts.join(",")}}`);
     }
-
+    // If the currentCuts array has only one element, the cuts array will push the cuts in the format of[cut].
     if (grouping.active) {
       drilldowns.push(`${grouping.drillDown.data.fullName}`);
     }
   });
+
+  // Loop through the filters array to extract the filters to create the URL parameters based on the selected filters by considering the active status of the filters.
   filters.forEach((f) => {
     if (f.active) {
       filter.push({
@@ -81,14 +92,13 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
     }
   });
 
+  // URLSearchParams object is used to create the URL parameters for the API call. The parameters include the cuts, drilldowns, filters, measure, order, order_desc, nonempty, parents, and sparse.
   const params = new URLSearchParams();
   cuts.forEach((cut) => params.append("cut[]", cut));
   params.append("drilldown[]", "[Year].[Year]");
   drilldowns.forEach((drilldown) => params.append("drilldown[]", drilldown));
   filter.forEach((f) => {
-    console.log(f);
     const filter = `${f.name.name} ${f.operation} ${f.value}`;
-    console.log(filter);
     params.append("filter[]", filter);
   });
   params.append("measures[]", measure);
@@ -100,6 +110,7 @@ async function getFilteredData(groupings, filters, selectedMeasure) {
 
   const apiUrl = `${BASE_URL}/${cubeName}/aggregate.jsonrecords?${params.toString()}`;
 
+  // Fetch the data from the API based on the URL parameters created.
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {

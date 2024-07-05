@@ -12,9 +12,11 @@ const initialState = {
 
 function reducer(state, action) {
   switch (action.type) {
+    //setting the measures from the first API call. AN array has been created with the data from the API
     case "setNodes":
       return { ...state, measureNodes: action.payload };
     case "setMeasure": {
+      //setting the selected measure from the treeSelect menue(showing)
       return {
         ...state,
         selectedMeasure: action.payload,
@@ -23,12 +25,14 @@ function reducer(state, action) {
       };
     }
     case "setDimensionNodes":
+      //Accessing the dimension nodes from the second API call geting cuts data
       return {
         ...state,
         dimensionNodes: action.payload,
       };
-
+    //Updating the data that passes through the groupings array for API call to get the data for the visualization
     case "updateGrouping":
+      //getting the old key and the new grouping. If the old key is found in the groupings array, the new grouping will replace the old grouping. If not, the new grouping will be added to the groupings array
       const oldKey = action.payload.oldKey;
       const newGrouping = action.payload.newGrouping;
 
@@ -54,8 +58,9 @@ function reducer(state, action) {
           (grouping) => grouping.drillDown.key !== action.payload
         ),
       };
-
+    //updating the filter array for API call to get the data for the visualization
     case "updateFilter":
+      //getting the old filter and the new filter. If the old filter is found in the filters array, the new filter will replace the old filter. If not, the new filter will be added to the filters array.
       const oldFilter = action.payload.oldFilter;
       const newFilter = action.payload.newFilter;
 
@@ -89,6 +94,7 @@ function reducer(state, action) {
 }
 
 function FilterProvider({ children }) {
+  //sending the initial state to the reducer
   const [
     { measureNodes, selectedMeasure, groupings, dimensionNodes, filters },
     dispatch,
@@ -112,6 +118,7 @@ function FilterProvider({ children }) {
 }
 
 const useFilter = () => {
+  // creating a custom hook to use the context
   const context = useContext(FilteringContext);
   if (!context) {
     throw new Error(
