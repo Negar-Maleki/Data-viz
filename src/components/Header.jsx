@@ -14,7 +14,7 @@ const StyledHeader = styled.div`
   @media screen and (max-width: 775px) {
     justify-items: end;
     justify-self: end;
-    padding-right: 0.5em;
+    padding-right: 1em;
     h5 {
       display: none;
     }
