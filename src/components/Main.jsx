@@ -164,7 +164,11 @@ function Main() {
             <div>
               {/* chart dialog containes the primerect Dialog component, zooming in button, and dowloading button  */}
               <ChartDialog>
+                {/* <TransformWrapper>
+                  <TransformComponent> */}
                 <LineChart chartData={data} />
+                {/* </TransformComponent>
+                </TransformWrapper> */}
               </ChartDialog>
             </div>
             <div>

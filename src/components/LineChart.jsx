@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import * as d3 from "d3";
 import { ResponsiveLine } from "@nivo/line";
 
@@ -202,6 +202,3 @@ export default function LineChart({ chartData }) {
     </StyledCharts>
   );
 }
-// {groupings.some((g) => g.drillDown.label === "Age")
-//   ? formatYear(point.data.y)
-//   : formatNumber(point.data.y)}
